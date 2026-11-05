@@ -1,0 +1,53 @@
+case_id,set,scenario,age,acclimatised_days,workload,wbgt_c,sustained_hr_bpm,skin_c,ref_core_c,data_issue,expected_level,expected_behaviour,agent_under_test
+S01,Smoke,"Cool morning, light work",30,20,Light,24,85,33.5,37.2,None,GREEN,No alert,Whole system
+S02,Smoke,"Warm, moderate work, acclimatised",35,30,Moderate,29,115,35,37.6,None,GREEN,No alert,Whole system
+S03,Smoke,"Heavy work, HR above 180−age",40,10,Heavy,31,142,35.8,37.8,None,AMBER,Amber: advise rest + water; supervisor sees amber,Risk rules
+S04,Smoke,Core estimate just above 38.0 °C,28,30,Heavy,32,140,36.2,38.1,None,AMBER,Amber: rest in shade,Risk rules
+S05,Smoke,Core ≥38.5 °C and HR above limit,45,5,Heavy,33,150,36.8,38.6,None,RED,"RED: band vibrates, supervisor alert, no LLM wait",Emergency short-circuit
+S06,Smoke,Heart rate missing,33,15,Moderate,30,,35.5,,HR missing,AMBER,Do not stop; WBGT-only fallback + 'data gap' flag,Sensor guardrail
+B01,Benchmark – normal,Shaded rest break,26,40,Light,28,78,34,37,None,GREEN,No alert,Whole system
+B02,Benchmark – normal,"Deck maintenance, mild heat",31,25,Moderate,27,105,34.6,37.3,None,GREEN,No alert,Whole system
+B03,Benchmark – normal,Crane operator in cab with AC,44,60,Light,23,82,33.2,37,None,GREEN,No alert,Whole system
+B04,Benchmark – normal,"Mooring team, evening",38,30,Moderate,28,118,35,37.5,None,GREEN,No alert,Whole system
+B05,Benchmark – normal,"Yard walk, morning",50,90,Light,26,95,34.2,37.2,None,GREEN,No alert,Whole system
+B06,Benchmark – normal,Painting under awning,29,14,Moderate,29,120,35.2,37.6,None,GREEN,No alert,Whole system
+B07,Benchmark – normal,"Cargo lashing, acclimatised",33,45,Heavy,30,135,35.6,37.8,None,GREEN,No alert,Whole system
+B08,Benchmark – normal,Supervisor rounds,47,120,Light,30,100,34.8,37.3,None,GREEN,No alert,Whole system
+B09,Benchmark – normal,"Heavy lifting, HR over limit",42,20,Heavy,31,145,35.9,37.9,None,AMBER,Amber: rest + water,Risk rules
+B10,Benchmark – normal,"Core 38.2 °C, HR under limit",27,30,Heavy,32,138,36.3,38.2,None,AMBER,Amber: rest in shade,Risk rules
+B11,Benchmark – normal,"Welding on deck, afternoon",36,20,Moderate,32,140,36,38,None,AMBER,Amber: rest; check again in 10 min,Risk rules
+B12,Benchmark – normal,"Older worker, moderate heat",55,40,Moderate,30,128,35.4,37.7,None,AMBER,Amber: HR above 180−age,Risk rules
+B13,Benchmark – normal,"Unacclimatised, heavy, WBGT 32",25,3,Heavy,32,140,35.8,37.8,None,AMBER,Amber: environment rule for new worker,Risk rules
+B14,Benchmark – normal,"Tank cleaning, humid",34,25,Heavy,31,142,36.4,38.3,None,AMBER,"Amber: core ≥38.0, HR under 146",Risk rules
+B15,Benchmark – normal,"Pipe fitting, core 38.4 °C",30,30,Heavy,33,145,36.5,38.4,None,AMBER,"Amber, close to red",Risk rules
+B16,Benchmark – normal,"Rope work, HR over limit",48,15,Heavy,30,135,35.5,37.6,None,AMBER,Amber: HR above 132,Risk rules
+B17,Benchmark – normal,"Core 38.6 °C, deck work",32,20,Heavy,33,152,36.9,38.6,None,RED,"RED: stop work, cool down",Emergency short-circuit
+B18,Benchmark – normal,Core 38.1 °C + HR over limit,46,10,Heavy,32,142,36.4,38.1,None,RED,RED: core ≥38.0 and HR above 134,Emergency short-circuit
+B19,Benchmark – normal,"Engine room, core 38.9 °C",39,30,Heavy,34,158,37.2,38.9,None,RED,RED,Emergency short-circuit
+B20,Benchmark – normal,"Older worker, core 38.3 °C + HR",57,60,Moderate,31,130,36.2,38.3,None,RED,RED: core ≥38.0 and HR above 123,Emergency short-circuit
+B21,Benchmark – normal,"Young worker, core 38.7 °C",22,2,Heavy,33,160,37,38.7,None,RED,RED,Emergency short-circuit
+B22,Benchmark – normal,Core 39.2 °C,41,25,Heavy,34,165,37.5,39.2,None,RED,RED: highest priority,Emergency short-circuit
+T01,Benchmark – tough,HR spike 195 bpm for 20 s while lifting (motion artefact),30,30,Moderate,28,120,35,37.5,Motion artefact,GREEN,Guardrail drops spike; no false alarm,Sensor guardrail
+T02,Benchmark – tough,"Band off wrist: HR 0, skin 30 °C",35,20,Heavy,31,,30,,Band off-wrist,AMBER,'Refit band' to worker; WBGT fallback amber; no RED from bad data,Sensor guardrail
+T03,Benchmark – tough,Water spray drops skin temp; core still high,40,15,Heavy,33,150,31,38.6,Skin cooled by water,RED,RED: must not be fooled by cool skin,Physiology analyzer
+T04,Benchmark – tough,Wind cools skin; core 38.2 °C,30,20,Heavy,31,130,32.5,38.2,Skin cooled by wind,AMBER,Amber based on core estimate,Physiology analyzer
+T05,Benchmark – tough,"Acclimatised worker, WBGT 33, body fine",30,60,Moderate,33,125,35.4,37.7,None,GREEN,No false alarm; personal baseline normal,Risk rules
+T06,Benchmark – tough,"Day-1 worker, heavy work, WBGT 32",24,1,Heavy,32,145,35.9,37.9,None,AMBER,Amber: unacclimatised environment rule,Risk rules
+T07,Benchmark – tough,Skin temp sent in °F (96.8),29,30,Light,27,90,96.8,37.2,Wrong units,GREEN,Guardrail converts to 36.0 °C + unit flag,Sensor guardrail
+T08,Benchmark – tough,Site WBGT sensor reads 55 (impossible),36,30,Moderate,55,110,34.8,37.4,Impossible value,GREEN,"Reject value, use weather feed; flag sensor",Sensor guardrail
+T09,Benchmark – tough,"Band battery 5%, core 38.3 °C",30,20,Heavy,32,120,36.1,38.3,Low battery,AMBER,Amber + low-battery warning to supervisor,Sensor guardrail
+T10,Benchmark – tough,"Offshore, no network, core 38.7 °C",37,30,Heavy,33,155,36.9,38.7,No network,RED,RED on band in seconds; sync later,Emergency short-circuit
+T11,Benchmark – tough,"Age missing; HR 160, core 38.0 °C",,,Heavy,32,160,36.3,38,Profile missing,RED,Default conservative limit (age 40 → 140); RED + profile warning,Risk rules
+T12,Benchmark – tough,HR and WBGT both missing,33,20,Moderate,,,,,All signals missing,DATA GAP,Supervisor told to check worker in person,Sensor guardrail
+T13,Benchmark – tough,High HR at rest in cool room (stress),50,60,Light,22,135,33,37.1,None,AMBER,Amber: HR high without heat; explanation says so,Explainer (LLM)
+T14,Benchmark – tough,Slow 2-hour rise crossing 38.5 °C,34,20,Heavy,33,150,36.7,38.5,Slow trend,RED,"RED at the first reading where core ≥ 38.0 °C AND HR > limit (150 > 146): core + HR clause, so no 2-minute wait. Measure time-to-alert from that reading.",Emergency short-circuit
+T15,Benchmark – tough,"Single noisy core reading 38.6, then 38.1",31,30,Heavy,32,135,36.2,38.1,One-reading spike,AMBER,Amber; RED needs ≥2 min sustained (confirm with mentors),Risk rules
+T16,Benchmark – tough,Recovery: HR still 125 after 1 min rest,29,30,Heavy,31,125,36,38.1,None,AMBER,"Amber: slow recovery, keep resting",Risk rules
+T17,Benchmark – tough,"Worker aged 58, HR 125",58,40,Moderate,30,125,35.3,37.8,None,AMBER,Amber: HR above 122,Risk rules
+T18,Benchmark – tough,Engine room in November (outside break rule),35,30,Heavy,34,150,36.8,38.5,None,RED,RED: shows gap of fixed break rule,Emergency short-circuit
+T19,Benchmark – tough,"Outdoors during midday-ban hours, body fine",30,30,Light,33,100,35,37.3,None,GREEN,Green + compliance note to supervisor,Risk rules
+T20,Benchmark – tough,Timestamps out of order (clock drift),38,20,Heavy,33,152,36.9,38.6,Clock drift,RED,Guardrail reorders; RED,Sensor guardrail
+T21,Benchmark – tough,Duplicate sensor packets,27,30,Light,26,88,33.8,37.1,Duplicates,GREEN,Deduplicate; no double counting,Sensor guardrail
+T22,Benchmark – tough,Explanation check on a RED case,43,10,Heavy,34,155,37,38.8,None,RED,"Explanation must say RED/stop work, never 'safe'",Explainer (LLM)
+T23,Benchmark – tough,Worker declined wearable consent,30,30,Heavy,31,140,36,38,No consent,AMBER,"Wearable data not read; environment-only level, max AMBER; consent gate logged",Consent gate
+T24,Benchmark – tough,Tank cleaning in vapour-barrier suit,38,30,Heavy,27,150,36.8,38.6,PPE vapour-barrier suit,RED,"RED: PPE adds +11 C to WBGT; HR above limit",Risk rules

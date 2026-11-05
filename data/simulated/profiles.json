@@ -1,0 +1,470 @@
+[
+  {
+    "case_id": "S01",
+    "age": 30,
+    "acclimatised_days": 20,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "S02",
+    "age": 35,
+    "acclimatised_days": 30,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "S03",
+    "age": 40,
+    "acclimatised_days": 10,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "S04",
+    "age": 28,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "S05",
+    "age": 45,
+    "acclimatised_days": 5,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "S06",
+    "age": 33,
+    "acclimatised_days": 15,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B01",
+    "age": 26,
+    "acclimatised_days": 40,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B02",
+    "age": 31,
+    "acclimatised_days": 25,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B03",
+    "age": 44,
+    "acclimatised_days": 60,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B04",
+    "age": 38,
+    "acclimatised_days": 30,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B05",
+    "age": 50,
+    "acclimatised_days": 90,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B06",
+    "age": 29,
+    "acclimatised_days": 14,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B07",
+    "age": 33,
+    "acclimatised_days": 45,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B08",
+    "age": 47,
+    "acclimatised_days": 120,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B09",
+    "age": 42,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B10",
+    "age": 27,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B11",
+    "age": 36,
+    "acclimatised_days": 20,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B12",
+    "age": 55,
+    "acclimatised_days": 40,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B13",
+    "age": 25,
+    "acclimatised_days": 3,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B14",
+    "age": 34,
+    "acclimatised_days": 25,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B15",
+    "age": 30,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B16",
+    "age": 48,
+    "acclimatised_days": 15,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B17",
+    "age": 32,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B18",
+    "age": 46,
+    "acclimatised_days": 10,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B19",
+    "age": 39,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B20",
+    "age": 57,
+    "acclimatised_days": 60,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B21",
+    "age": 22,
+    "acclimatised_days": 2,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "B22",
+    "age": 41,
+    "acclimatised_days": 25,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T01",
+    "age": 30,
+    "acclimatised_days": 30,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T02",
+    "age": 35,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T03",
+    "age": 40,
+    "acclimatised_days": 15,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T04",
+    "age": 30,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T05",
+    "age": 30,
+    "acclimatised_days": 60,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T06",
+    "age": 24,
+    "acclimatised_days": 1,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T07",
+    "age": 29,
+    "acclimatised_days": 30,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T08",
+    "age": 36,
+    "acclimatised_days": 30,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T09",
+    "age": 30,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T10",
+    "age": 37,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T11",
+    "age": null,
+    "acclimatised_days": null,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T12",
+    "age": 33,
+    "acclimatised_days": 20,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T13",
+    "age": 50,
+    "acclimatised_days": 60,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T14",
+    "age": 34,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T15",
+    "age": 31,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T16",
+    "age": 29,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T17",
+    "age": 58,
+    "acclimatised_days": 40,
+    "workload": "Moderate",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T18",
+    "age": 35,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T19",
+    "age": 30,
+    "acclimatised_days": 30,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T20",
+    "age": 38,
+    "acclimatised_days": 20,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T21",
+    "age": 27,
+    "acclimatised_days": 30,
+    "workload": "Light",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T22",
+    "age": 43,
+    "acclimatised_days": 10,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T23",
+    "age": 30,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": false,
+    "clothing": "work_clothes",
+    "label": "SIMULATED"
+  },
+  {
+    "case_id": "T24",
+    "age": 38,
+    "acclimatised_days": 30,
+    "workload": "Heavy",
+    "consent": true,
+    "clothing": "vapour_barrier_suit",
+    "label": "SIMULATED"
+  }
+]
