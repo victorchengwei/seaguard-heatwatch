@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeatWatch Worker</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#14202b;--muted:#5b6b78;--line:#d7dee4;
+--l1:#1f8a4c;--l2:#c99700;--l3:#d9640f;--l4:#c62828;--accent:#0b5cad}
+@media (prefers-color-scheme:dark){:root{--bg:#0e141a;--card:#18212a;--ink:#e8eef3;--muted:#9fb0bd;--line:#2a3743}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:460px;margin:0 auto;padding:16px}
+h1{font-size:18px;margin:4px 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.status{color:#fff;border:none;text-align:center}
+.status .lvl{font-size:30px;font-weight:700}
+.status .act{font-size:17px;margin-top:6px}
+.l1{background:var(--l1)}.l2{background:var(--l2)}.l3{background:var(--l3)}.l4{background:var(--l4)}
+.why{font-size:14px;color:var(--muted);margin:8px 0 0;padding-left:18px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;font-weight:600;padding:14px;border-radius:10px;border:none;cursor:pointer}
+.unwell{background:var(--l4);color:#fff}.break{background:var(--accent);color:#fff}
+label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0;font-size:15px}
+input[type=number],select{font:inherit;width:150px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.small{font-size:13px;color:var(--muted)}
+.offline{border:2px dashed var(--l3)}
+</style>
+</head>
+<body>
+<main>
+<h1>SeaGuard HeatWatch · Worker</h1>
+
+<div id="status" class="card status l1">
+  <div class="lvl" id="lvl">Checking…</div>
+  <div class="act" id="act"></div>
+</div>
+
+<div class="card">
+  <div class="btns">
+    <button class="unwell" id="unwell">I feel unwell</button>
+    <button class="break" id="brk">I need a break</button>
+  </div>
+  <ul class="why" id="why"></ul>
+</div>
+
+<div class="card">
+  <div class="small">Demo inputs (in the field these come from forecast, sensors and the shift plan)</div>
+  <label>Air temperature °C <input type="number" id="t" value="36" step="0.5"></label>
+  <label>Humidity % <input type="number" id="rh" value="55" step="1"></label>
+  <label>In direct sun <input type="checkbox" id="sun" checked></label>
+  <label>Workload <select id="wl"></select></label>
+  <label>Clothing / PPE <select id="cl"></select></label>
+  <label>Acclimatized <input type="checkbox" id="acc" checked></label>
+  <label>Minutes worked in heat <input type="number" id="min" value="20" step="5"></label>
+  <label>Simulate: no network <input type="checkbox" id="off"></label>
+</div>
+<p class="small">Risk levels come from fixed published work–rest rules, not from AI. The supervisor decides.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const OFFLINE_CARD={level:3,label:"High",action:"No connection. Follow your printed work–rest card: rest 15 min in shade every hour, drink water, buddy check.",reasons:["Network down: safe offline rule used (never silent)."]};
+let unwell=false, brk=false;
+
+async function loadOptions(){
+  let o={workloads:["light","moderate","heavy","very_heavy"],clothing:["work_clothes","woven_coveralls","double_layer_coveralls","sms_polypropylene_coveralls","polyolefin_coveralls","vapour_barrier_suit"]};
+  try{const r=await fetch("/api/options");if(r.ok)o=await r.json();}catch(e){}
+  $("wl").innerHTML=o.workloads.map(w=>`<option ${w==="moderate"?"selected":""}>${w}</option>`).join("");
+  $("cl").innerHTML=o.clothing.map(c=>`<option>${c}</option>`).join("");
+}
+
+function show(a,offline){
+  const s=$("status");
+  s.className="card status l"+a.level+(offline?" offline":"");
+  $("lvl").textContent=`Level ${a.level} · ${a.label}`;
+  $("act").textContent=a.action;
+  $("why").innerHTML=(a.reasons||[]).map(r=>`<li>${r}</li>`).join("");
+}
+
+async function update(){
+  const body={temp_c:parseFloat($("t").value),rh_pct:parseFloat($("rh").value),sun:$("sun").checked,
+    workload:$("wl").value,clothing:$("cl").value,acclimatized:$("acc").checked,
+    minutes_worked:parseInt($("min").value||"0"),feels_unwell:unwell,needs_break:brk};
+  if($("off").checked){ showOffline(); return; }
+  try{
+    const r=await fetch("/api/assess",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(!r.ok)throw new Error(r.status);
+    const a=await r.json(); last=a; show(a,false);
+  }catch(e){showOffline();}
+}
+
+// Offline: never lower the last known warning; never stay silent.
+let last=null;
+function showOffline(){
+  if(unwell){show({level:4,label:"Stop work",action:"Stop, cool down. Alert queued: sent as soon as any link returns.",reasons:["Worker reported feeling unwell."]},true);return;}
+  if(last && last.level>OFFLINE_CARD.level){
+    show({...last,action:last.action+" (No connection: last known level kept.)",reasons:["Network down: last known level kept, never lowered."]},true);return;
+  }
+  show(OFFLINE_CARD,true);
+}
+
+$("unwell").onclick=()=>{unwell=!unwell;$("unwell").textContent=unwell?"Unwell reported ✓":"I feel unwell";update();};
+$("brk").onclick=()=>{brk=!brk;$("brk").textContent=brk?"Break requested ✓":"I need a break";update();};
+["t","rh","sun","wl","cl","acc","min","off"].forEach(id=>$(id).addEventListener("input",update));
+loadOptions().then(update);
+</script>
+</body>
+</html>

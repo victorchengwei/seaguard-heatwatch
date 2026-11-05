@@ -1,0 +1,63 @@
+{
+  "A": {
+    "red_recall": "15/15",
+    "red_recall_ci95": [
+      0.796,
+      1.0
+    ],
+    "false_alarms_on_green": "8/16",
+    "false_red": 16,
+    "red_ppv": "15/31",
+    "red_ppv_ci95": [
+      0.32,
+      0.652
+    ],
+    "accuracy": "28/52"
+  },
+  "B": {
+    "red_recall": "15/15",
+    "red_recall_ci95": [
+      0.796,
+      1.0
+    ],
+    "false_alarms_on_green": "8/16",
+    "false_red": 2,
+    "red_ppv": "15/17",
+    "red_ppv_ci95": [
+      0.657,
+      0.967
+    ],
+    "accuracy": "42/52"
+  },
+  "C": {
+    "red_recall": "15/15",
+    "red_recall_ci95": [
+      0.796,
+      1.0
+    ],
+    "false_alarms_on_green": "0/16",
+    "false_red": 2,
+    "red_ppv": "15/17",
+    "red_ppv_ci95": [
+      0.657,
+      0.967
+    ],
+    "accuracy": "42/52"
+  },
+  "C_core_estimate": {
+    "cases": 48,
+    "mean_abs_err_c": 0.3,
+    "max_abs_err_c": 1.04
+  },
+  "C_alerting": {
+    "cases_alerted": 27,
+    "median_time_to_alert_s": 530,
+    "red_lead_time_s": {
+      "cases": 12,
+      "median": 440,
+      "min": 50
+    },
+    "note": "Evaluated every 60 s on the stream; on-device latency is not measured in simulation."
+  },
+  "note": "All data SIMULATED. Results show the safety logic runs, not field performance."
+}

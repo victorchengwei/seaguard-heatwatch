@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeatWatch Guided Demo</title>
+<style>
+:root{--bg:#f3f5f7;--card:#fff;--ink:#14202b;--muted:#5a6a77;--line:#d8dfe5;--accent:#0b5cad;
+--g:#1f8a4c;--a:#b98300;--r:#c62828;--gap:#5f6b75;--soft:#eef2f5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e141a;--card:#17212a;--ink:#e7edf2;--muted:#9eb0bd;--line:#2a3845;--soft:#1e2b36;--accent:#5aa2ef}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{margin:0;font-size:18px}
+header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.sim{display:inline-block;background:#6b4e00;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em;vertical-align:middle}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 16px 40px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.controls input[type=range]{flex:1;min-width:160px}
+button,select{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.min{font-variant-numeric:tabular-nums;font-weight:700;min-width:78px}
+label.tg{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.caption{background:var(--soft);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:15px;min-height:44px}
+.grid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{font-size:14px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.board{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.tile{border-radius:10px;padding:10px;color:#fff;cursor:pointer;border:3px solid transparent;transition:background .3s}
+.tile.sel{border-color:var(--ink)}
+.tile b{font-size:16px}.tile span{display:block;font-size:12px;opacity:.92}
+.GREEN{background:var(--g)}.AMBER{background:var(--a)}.RED{background:var(--r)}.DATA_GAP{background:var(--gap)}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.phone{max-width:340px;margin:0 auto;border:2px solid var(--line);border-radius:22px;padding:12px;background:var(--bg)}
+.alert{border-radius:12px;color:#fff;text-align:center;padding:14px}
+.alert .lv{font-size:26px;font-weight:800}
+.alert .ac{font-size:15px;margin-top:6px}
+.mm{font-size:13px;margin-top:10px}
+.mm div{margin:6px 0;padding:8px;border-radius:8px;background:var(--card);border:1px solid var(--line)}
+.mm b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.fail{background:#fff3cd;color:#5c4400;border:1px solid #e6c200;border-radius:8px;padding:8px;font-size:13px;margin-top:8px}
+ul.why{margin:6px 0 0;padding-left:18px;font-size:13px}
+.ladder{list-style:none;padding:0;margin:0;font-size:13px}
+.ladder li{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.ladder .t{font-weight:700;min-width:46px;color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left}
+th{color:var(--muted);font-weight:600}
+.stages{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.st{flex:1;min-width:110px;border-radius:8px;padding:8px;font-size:12px;border:1px solid var(--line);background:var(--soft)}
+.st b{display:block;font-size:12px}
+.st.ok{border-color:var(--g)}.st.ok b::before{content:"✓ ";color:var(--g)}
+.st.warn{border-color:var(--a)}.st.warn b::before{content:"! ";color:var(--a)}
+.st.fire{border-color:var(--r);background:color-mix(in srgb,var(--r) 14%,var(--soft))}.st.fire b::before{content:"⚡ ";color:var(--r)}
+.st.skip b::before{content:"– ";color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media (max-width:900px){.row2{grid-template-columns:1fr}}
+svg text{fill:var(--muted);font-size:10px}
+.hidden{display:none}
+[dir=rtl]{text-align:right}
+.ci{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px;font-size:13px}
+.ci b{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chips button{padding:4px 8px;font-size:12px;border-radius:999px}
+.chips button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.reply{font-size:12px;color:var(--muted);margin-top:6px}
+.lock{font-size:12px;opacity:.9;margin-top:4px}
+.prin{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:13px}
+@media (max-width:900px){.prin{grid-template-columns:1fr}}
+.prin div{background:var(--soft);border-radius:8px;padding:10px}
+.prin b{display:block;margin-bottom:2px}
+.sectors{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.sectors span{background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>SeaGuard HeatWatch · Guided demo <span class="sim">SIMULATED DATA</span></h1>
+  <p>Heat-stress early warning for ports, offshore, construction and logistics. Rules decide, AI only explains, people decide.</p>
+</header>
+<div class="wrap">
+  <div class="controls">
+    <button class="primary" id="tour">▶ Guided tour</button>
+    <button id="play">Play</button>
+    <span class="min" id="minLbl">Minute 1</span>
+    <input type="range" id="min" min="1" max="30" value="1" aria-label="Minute of shift">
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="ar">العربية</option><option value="hi">हिन्दी</option><option value="ur">اردو</option><option value="bn">বাংলা</option><option value="ne">नेपाली</option><option value="tl">Tagalog</option></select>
+    <label class="tg"><input type="checkbox" id="fail"> Simulate explainer failure</label>
+    <label class="tg"><input type="checkbox" id="tech"> Technical view (judges)</label>
+  </div>
+  <div class="caption" id="cap">Seven simulated workers start a summer afternoon shift (WBGT 27–34 °C). Press <b>Guided tour</b>, or drag the slider and click a worker.</div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1 · Supervisor board</h2>
+      <div class="board" id="board"></div>
+      <p class="note">The supervisor sees colours and actions only: no heart rate, no body temperature.</p>
+      <h2 style="margin-top:12px">Escalation ladder</h2>
+      <ul class="ladder" id="ladder"></ul>
+      <h2 style="margin-top:12px">Who receives this alert</h2>
+      <p id="route" style="margin:0;font-size:13px"></p>
+      <h2 style="margin-top:12px">Supervisor readiness (before going on site)</h2>
+      <div id="train" style="font-size:13px"></div>
+      <p class="note">Until every module is done, alerts are also copied to the site safety officer: an untrained supervisor is never alone with an alert.</p>
+    </section>
+    <section class="card">
+      <h2>2 · Worker's band / phone</h2>
+      <div class="phone" id="phone"></div>
+    </section>
+    <section class="card">
+      <h2>3 · Health office (anonymous)</h2>
+      <table id="agg"></table>
+      <p class="note">Counts below 5 are shown as "&lt;5" so no single worker can be identified. These anonymous site counts can feed a regional heat-health record for population early warning (Department of Health).</p>
+      <h2 style="margin-top:12px">Story of this worker</h2>
+      <p id="story" style="margin:0;font-size:14px"></p>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:12px">
+    <h2>Built around the worker: respect first</h2>
+    <p style="margin:0 0 10px;font-size:14px">Gulf sites bring together workers from many countries, languages, faiths and habits. Most left home to earn for their families, so the fear of losing pay can make a worker hide symptoms. HeatWatch speaks their language, says plainly that heat breaks are paid, and requires supervisors to be trained before they go on site.</p>
+    <div class="sectors"><span>⚓ Ports</span><span>🛢 Offshore</span><span>🏗 Construction</span><span>🚚 Logistics</span></div>
+    <div class="prin">
+      <div><b>People decide</b>Rules raise the alert; a supervisor and the site medic decide. AI only puts it in plain words, in the worker's language.</div>
+      <div><b>Mood is human, and private</b>An optional daily check-in (good / OK / tired / stressed, sleep). Only the worker sees the answer. A hard day can only bring an earlier break, never a looser limit.</div>
+      <div><b>The worker chooses the tone</b>Gentle or direct words for everyday messages. RED is always short, firm and clear, and cannot be muted. Firm, never rude.</div>
+      <div><b>No blame, no reset</b>Missed check-ins get a friendly welcome back; progress is never reset to zero. Several low days offer confidential support to the worker only.</div>
+      <div><b>Never used against workers</b>Not for discipline, performance rating, hiring or insurance. Supervisors see colours, not health data or mood.</div>
+      <div><b>Measured over time</b>Lead time, false alarms, check-in rate, recovery after lapses and equal benefit across crews, nationalities and languages, reported anonymously.</div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:12px">
+    <h2>What happened inside, step by step (<span id="who"></span>)</h2>
+    <div class="stages" id="stages"></div>
+  </section>
+
+  <div class="row2 hidden" id="techRow">
+    <section class="card">
+      <h2>Core-temperature estimate vs simulated reference</h2>
+      <svg id="chart" viewBox="0 0 420 200" width="100%" role="img" aria-label="Estimated and reference core temperature"></svg>
+      <p class="note">Solid: HeatWatch estimate from heart rate (Buller et al. 2013 Kalman filter). Dashed: simulated reference core. Shaded: level at each minute. <span id="raw"></span></p>
+    </section>
+    <section class="card">
+      <h2>Benchmark: 52 simulated cases</h2>
+      <table id="bench"></table>
+      <p class="note">A = WBGT rule only (today's practice) · B = WBGT + heart rate · C = HeatWatch. Simulation, not field outcomes. Known limit: the core estimate lags, so some AMBER alerts come late.</p>
+    </section>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let crew=[],sel="W06",minute=1,timer=null,tourOn=false,tone="gentle";
+let trained=[],TRAIN=[];  // supervisor training modules done (demo: all done at start)
+const checkins={};  // worker -> {mood, sleep}; stays on this screen (private)
+const MOODS=[["good","😀","Good","جيد"],["ok","🙂","OK","بخير"],["tired","😩","Tired","متعب"],["stressed","😟","Stressed / down","متوتر"]];
+const caution=w=>{const c=checkins[w]||{};return c.mood=="tired"||c.mood=="stressed"||c.sleep=="poor"||c.fasting};
+const STAGES=[["consent","Consent gate"],["sensor_guardrail","Sensor guardrail"],["physiology_analyzer","Body-heat estimate"],
+ ["risk_rules","Risk rules"],["red_short_circuit","RED short-circuit"],["explainer","Explainer (words only)"],["supervisor","Supervisor decides"]];
+const TOUR=[
+ {m:1,w:"W01",t:"Minute 1. Seven workers, four sectors. Everyone starts GREEN except two who need an environment-only level from the start."},
+ {m:2,w:"W04",t:"W04 declined the band. The consent gate means wearable data is never read; the level comes from site heat only and is capped at AMBER."},
+ {m:3,w:"W03",t:"W03's band gives no valid heart rate (reading 0). A missing value never becomes zero, and missing data never lowers a level: AMBER, 'refit band'."},
+ {m:16,w:"W02",t:"Minute 16. W02 lifts cargo: a 195 bpm spike for 20 seconds. The sensor guardrail drops it as movement. No false alarm, still GREEN."},
+ {m:9,w:"W06",t:"Minute 9. W06 is offshore with no network. Heat and heart rate cross the limit: the band raises RED by itself, without waiting for the core estimate or the cloud."},
+ {m:11,w:"W05",t:"Minute 11. W05 cleans a tank in a vapour-barrier suit (+11 °C effective heat). RED. The explanation is added after the alert, never before."},
+ {m:11,w:"W05",t:"If the AI explainer fails, the failure is shown openly. The alert and the action do not change: rules decide.",fail:true},
+ {m:25,w:"W07",t:"W07 welds on deck. On body signals alone he reads GREEN. Today he checks in 'tired, slept badly'. Only he sees that answer; his own limits get stricter, so he gets an AMBER break sooner. RED limits never change.",ci:{mood:"tired",sleep:"poor"}},
+ {m:11,w:"W05",t:"Gulf sites bring together workers from many countries. W05 can read the alert in Hindi, Urdu, Bengali, Nepali, Tagalog, Arabic or English, with pictograms, and the alert says plainly that heat breaks are paid.",lang:"hi"},
+ {m:11,w:"W05",t:"Supervisors are trained before they go on site: respect, language, culture and faith (including Ramadan fasting), and workers' fear of losing pay. Until training is complete, every alert is also copied to the safety officer.",untrain:true},
+ {m:30,w:"W01",t:"End of shift. W01 stayed GREEN all along. GREEN means 'inside the screening limits', not medical clearance."}];
+
+async function j(u){const r=await fetch(u);return r.json()}
+function cls(l){return l.replace(" ","_")}
+async function init(){
+  crew=(await j("/api/demo/crew")).crew;
+  TRAIN=(await j("/api/supervisor/training")).modules; trained=TRAIN.map(t=>t.id);
+  $("min").max=Math.max(...crew.map(c=>c.minutes));
+  const b=await j("/api/benchmark");
+  $("bench").innerHTML="<tr><th></th><th>RED caught</th><th>RED precision</th><th>False alarms, normal shifts</th></tr>"+
+   ["A","B","C"].map(a=>`<tr><td><b>${a}</b></td><td>${b[a].red_recall}</td><td>${b[a].red_ppv}</td><td>${b[a].false_alarms_on_green}</td></tr>`).join("");
+  render();
+}
+async function render(){
+  $("minLbl").textContent="Minute "+minute; $("min").value=minute;
+  const lang=$("lang").value, fail=$("fail").checked, tech=$("tech").checked;
+  const cz=crew.map(c=>c.worker).filter(caution).join(",");
+  const st=await j(`/api/demo/board?minute=${minute}&caution=${cz}`);
+  $("board").innerHTML=st.board.map(b=>{const c=crew.find(x=>x.worker==b.worker);
+    return `<div class="tile ${cls(b.level)} ${b.worker==sel?'sel':''}" data-w="${b.worker}" role="button" tabindex="0">
+    <b>${b.worker} · ${b.level}</b><span>${lang=='ar'?c.role_ar:c.role}</span><span>${c.sector}</span></div>`}).join("");
+  document.querySelectorAll(".tile").forEach(t=>t.onclick=()=>{sel=t.dataset.w;render()});
+  const lv=st.site_report.levels;
+  $("agg").innerHTML=`<tr><th>Site total</th><td>${st.site_report.total}</td></tr>`+
+    (typeof lv=="string"?`<tr><td colspan=2>${lv}</td></tr>`:Object.entries(lv).map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join(""))+
+    `<tr><th>Daily check-in rate</th><td>${Math.round(st.checkin_rate.rate*100)}% (no individual moods)</td></tr>`;
+  const ck=checkins[sel]||{};
+  const w=await j(`/api/demo/worker/${sel}?minute=${minute}&lang=${lang}&fail_explainer=${fail}&technical=${tech}&mood=${ck.mood||""}&sleep=${ck.sleep||""}&tone=${tone}&fasting=${!!ck.fasting}&trained=${trained.join(",")}`);
+  const e=w.explanation, rtl=w.message.rtl?'dir="rtl"':'', ar=lang=="ar";
+  const moodBtns=MOODS.map(([k,i,en,a])=>`<button data-mood="${k}" class="${ck.mood==k?'on':''}">${i} ${ar?a:en}</button>`).join("");
+  const sleepBtns=[["good",ar?"نمت جيداً":"Slept well"],["poor",ar?"نمت بشكل سيئ":"Slept badly"]].map(([k,t])=>`<button data-sleep="${k}" class="${ck.sleep==k?'on':''}">${t}</button>`).join("")
+    +`<button data-fast="1" class="${ck.fasting?'on':''}">🌙 ${ar?"صائم اليوم":"Fasting today"}</button>`;
+  const toneBtns=w.message.locked?`<div class="lock">🔒 ${ar?"كلمات الخطر ثابتة ولا يمكن كتمها":"RED words are always firm and cannot be muted"}</div>`:
+    `<div class="chips">${[["gentle",ar?"لطيف":"Gentle"],["direct",ar?"مباشر":"Direct"]].map(([k,t])=>`<button data-tone="${k}" class="${tone==k?'on':''}">${t}</button>`).join("")}</div>`;
+  $("phone").innerHTML=`<div ${ar?'dir="rtl"':''}><div class="ci"><b>${ar?"مشاركة يومية · خاصة":"Daily check-in · private"}</b><div class="chips">${moodBtns}</div><div class="chips">${sleepBtns}</div>
+   ${w.checkin.reply?`<div class="reply">${w.checkin.reply}</div>`:`<div class="reply">${ar?"اختياري. التخطي لا يغير شيئاً.":"Optional. Skipping changes nothing."}</div>`}</div>
+   <div class="alert ${cls(w.level)}" ${rtl}><div style="font-size:30px">${w.message.picto}</div><div class="lv">${w.message.level_name||e.level_name}</div><div class="ac">${w.message.text}</div>
+   ${w.message.paid?`<div class="lock" style="margin-top:8px;font-weight:600">💵 ${w.message.paid}</div>`:""}</div>
+   ${w.message.draft_translation?`<div class="reply">Draft translation: native-speaker review required before field use. Details below in English.</div>`:""}
+   <div class="ci" style="margin-top:8px"><b>${ar?"أسلوب الرسائل":"Message words"}</b>${toneBtns}</div>
+   <div class="mm"><div><b>${lang=='ar'?'ماذا يعني':'What it means'}</b>${e.means}</div>
+   <div><b>${lang=='ar'?'ماذا لا يعني':'What it does not mean'}</b>${e.does_not_mean}</div>
+   ${e.status=="ok"?`<div><b>${lang=='ar'?'لماذا':'Why'}</b><ul class="why">${e.why.map(x=>`<li>${x}</li>`).join("")}</ul></div>`:`<div class="fail">⚠ ${e.notice}</div>`}
+   </div><button style="width:100%;margin-top:8px;background:var(--r);color:#fff;border:none">${lang=='ar'?'أشعر بتوعك':'I feel unwell'}</button></div>`;
+  document.querySelectorAll("[data-mood]").forEach(b=>b.onclick=()=>{const c=checkins[sel]||{};c.mood=c.mood==b.dataset.mood?null:b.dataset.mood;checkins[sel]=c;render()});
+  document.querySelectorAll("[data-sleep]").forEach(b=>b.onclick=()=>{const c=checkins[sel]||{};c.sleep=c.sleep==b.dataset.sleep?null:b.dataset.sleep;checkins[sel]=c;render()});
+  document.querySelectorAll("[data-tone]").forEach(b=>b.onclick=()=>{tone=b.dataset.tone;render()});
+  document.querySelectorAll("[data-fast]").forEach(b=>b.onclick=()=>{const c=checkins[sel]||{};c.fasting=!c.fasting;checkins[sel]=c;render()});
+  $("route").innerHTML=w.routing.recipients.length?w.routing.recipients.map(r=>`• ${r}`).join("<br>"):"No one: GREEN needs no action.";
+  $("train").innerHTML=TRAIN.map(t=>`<label style="display:flex;gap:6px;margin:3px 0"><input type="checkbox" data-tr="${t.id}" ${trained.includes(t.id)?"checked":""}><span><b>${t.title}</b> · ${t.detail}</span></label>`).join("");
+  document.querySelectorAll("[data-tr]").forEach(c=>c.onchange=()=>{trained=c.checked?[...trained,c.dataset.tr]:trained.filter(x=>x!=c.dataset.tr);render()});
+  $("ladder").dir=lang=="ar"?"rtl":"ltr";
+  $("ladder").innerHTML=e.ladder.length?e.ladder.map(s=>`<li><span class="t">+${s.min} min</span><span>${s.step}</span></li>`).join(""):"<li>No action needed.</li>";
+  $("story").textContent=w.story; $("who").textContent=`${w.worker}, minute ${w.minute}`;
+  const sg={...w.stages, supervisor: w.level=="GREEN"?"no action":"notified: a person decides"};
+  if(w.level=="RED") sg.explainer=fail?"failed (shown openly); alert unchanged":"added after the alert was sent";
+  else if(sg.explainer=="pending") sg.explainer=fail?"failed (shown openly)":"passed";
+  $("stages").innerHTML=STAGES.map(([k,n])=>{const v=sg[k]||"not reached";
+    const c=/fired/.test(v)?"fire":/^passed|after the alert|notified/.test(v)?"ok":/flag|fallback|held|no consent|failed/.test(v)?"warn":"skip";
+    return `<div class="st ${c}"><b>${n}</b>${v}</div>`}).join("");
+  $("techRow").classList.toggle("hidden",!tech);
+  if(tech){chart(sel); const t=w.technical;
+    $("raw").textContent=`Now (case ${t.case}): HR ${t.hr??"missing"} bpm · WBGT ${t.wbgt??"missing"} °C · estimate ${t.core_est??"–"} °C · reference ${t.ref_core??"–"} °C. Rules: ${t.reasons.join(" ")}`;}
+}
+async function chart(wk){
+  const d=(await j(`/api/demo/trace/${wk}`)).points, W=420,H=200,L=34,B=180,T=10;
+  const xs=m=>L+(m-1)/(d.length-1)*(W-L-6), y=v=>B-(v-36.8)/(39.6-36.8)*(B-T);
+  const col={GREEN:"var(--g)",AMBER:"var(--a)",RED:"var(--r)","DATA GAP":"var(--gap)"};
+  let s=d.map(p=>`<rect x="${xs(p.minute)-4}" y="${T}" width="8" height="${B-T}" fill="${col[p.level]}" opacity=".12"/>`).join("");
+  [37,38,38.5,39.5].forEach(v=>s+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="2" y="${y(v)+3}">${v}°C</text>`);
+  const line=(k,dash)=>{const pts=d.filter(p=>p[k]!=null).map(p=>`${xs(p.minute)},${y(p[k])}`).join(" ");
+    return pts?`<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" ${dash?'stroke-dasharray="5 4" opacity=".7"':''}/>`:""};
+  s+=line("ref_core",1)+line("core_est",0);
+  s+=`<line x1="${xs(minute)}" x2="${xs(minute)}" y1="${T}" y2="${B}" stroke="var(--ink)"/>`;
+  s+=`<text x="${L}" y="196">minute 1</text><text x="${W-50}" y="196">minute ${d.length}</text>`;
+  if(!d.some(p=>p.core_est!=null)) s+=`<text x="${L+20}" y="100">No heart rate: no body-heat estimate (environment-only level)</text>`;
+  $("chart").innerHTML=s;
+}
+$("min").oninput=e=>{minute=+e.target.value;render()};
+["lang","fail","tech"].forEach(id=>$(id).onchange=render);
+$("play").onclick=()=>{if(timer){clearInterval(timer);timer=null;$("play").textContent="Play";return}
+  $("play").textContent="Pause";timer=setInterval(()=>{if(minute>=+$("min").max){clearInterval(timer);timer=null;$("play").textContent="Play";return}minute++;render()},700)};
+$("tour").onclick=async()=>{if(tourOn)return;tourOn=true;const f0=$("fail").checked;
+  const l0=$("lang").value;
+  for(const s of TOUR){minute=s.m;sel=s.w;if(s.ci)checkins[s.w]={...s.ci};$("lang").value=s.lang||l0;trained=s.untrain?TRAIN.slice(0,4).map(t=>t.id):TRAIN.map(t=>t.id);$("fail").checked=!!s.fail;$("cap").textContent=s.t;await render();await new Promise(r=>setTimeout(r,6500))}
+  $("fail").checked=f0;tourOn=false;render()};
+init();
+</script>
+</body>
+</html>
