@@ -1,0 +1,185 @@
+{
+  "light": {
+    "workload": "light",
+    "daytime_hours": 1989,
+    "levels": {
+      "1": 758,
+      "2": 320,
+      "3": 489,
+      "4": 422
+    },
+    "high_or_stop_share_pct": 45.8,
+    "high_hours_outside_midday_ban_pct": 81.3,
+    "days_with_high": 124,
+    "days_total": 153,
+    "lead_time_h_median": 1.0,
+    "lead_time_h_p25": 1.0,
+    "days_with_lead_measured": 124,
+    "sim_false_alarm_rate_pct": 36.6,
+    "sim_miss_rate_pct": 8.6,
+    "high_share_by_month_pct": {
+      "5": 13.0,
+      "6": 34.0,
+      "7": 61.0,
+      "8": 66.0,
+      "9": 55.0
+    },
+    "high_hours_vs_midday_ban": {
+      "inside_ban_pct": 18.7,
+      "same_season_outside_window_pct": 61.5,
+      "outside_ban_season_pct": 19.9
+    },
+    "movable_high_hours_pct": 49.3,
+    "mean_safe_hours_04_22_by_month": {
+      "5": 16.3,
+      "6": 13.5,
+      "7": 8.5,
+      "8": 7.5,
+      "9": 10.3
+    },
+    "assumptions": {
+      "forecast_safety_margin_c": 2.0,
+      "forecast_error_temp_sd_c": 1.5,
+      "forecast_error_rh_sd_pct": 8.0,
+      "shift_hours": "06:00-19:00",
+      "exposure": "outdoors, direct sun"
+    }
+  },
+  "moderate": {
+    "workload": "moderate",
+    "daytime_hours": 1989,
+    "levels": {
+      "1": 133,
+      "2": 353,
+      "3": 755,
+      "4": 748
+    },
+    "high_or_stop_share_pct": 75.6,
+    "high_hours_outside_midday_ban_pct": 87.6,
+    "days_with_high": 149,
+    "days_total": 153,
+    "lead_time_h_median": 2.0,
+    "lead_time_h_p25": 0.0,
+    "days_with_lead_measured": 149,
+    "sim_false_alarm_rate_pct": 15.3,
+    "sim_miss_rate_pct": 4.7,
+    "high_share_by_month_pct": {
+      "5": 46.0,
+      "6": 75.0,
+      "7": 87.0,
+      "8": 87.0,
+      "9": 82.0
+    },
+    "high_hours_vs_midday_ban": {
+      "inside_ban_pct": 12.4,
+      "same_season_outside_window_pct": 57.0,
+      "outside_ban_season_pct": 30.6
+    },
+    "movable_high_hours_pct": 24.6,
+    "mean_safe_hours_04_22_by_month": {
+      "5": 11.9,
+      "6": 7.1,
+      "7": 3.2,
+      "8": 2.7,
+      "9": 4.0
+    },
+    "assumptions": {
+      "forecast_safety_margin_c": 2.0,
+      "forecast_error_temp_sd_c": 1.5,
+      "forecast_error_rh_sd_pct": 8.0,
+      "shift_hours": "06:00-19:00",
+      "exposure": "outdoors, direct sun"
+    }
+  },
+  "heavy": {
+    "workload": "heavy",
+    "daytime_hours": 1989,
+    "levels": {
+      "2": 208,
+      "3": 690,
+      "4": 1091
+    },
+    "high_or_stop_share_pct": 89.5,
+    "high_hours_outside_midday_ban_pct": 89.6,
+    "days_with_high": 152,
+    "days_total": 153,
+    "lead_time_h_median": 0.0,
+    "lead_time_h_p25": 0.0,
+    "days_with_lead_measured": 152,
+    "sim_false_alarm_rate_pct": 7.5,
+    "sim_miss_rate_pct": 2.6,
+    "high_share_by_month_pct": {
+      "5": 71.0,
+      "6": 90.0,
+      "7": 96.0,
+      "8": 97.0,
+      "9": 94.0
+    },
+    "high_hours_vs_midday_ban": {
+      "inside_ban_pct": 10.4,
+      "same_season_outside_window_pct": 54.5,
+      "outside_ban_season_pct": 35.0
+    },
+    "movable_high_hours_pct": 12.2,
+    "mean_safe_hours_04_22_by_month": {
+      "5": 7.8,
+      "6": 3.0,
+      "7": 1.2,
+      "8": 0.7,
+      "9": 1.3
+    },
+    "assumptions": {
+      "forecast_safety_margin_c": 2.0,
+      "forecast_error_temp_sd_c": 1.5,
+      "forecast_error_rh_sd_pct": 8.0,
+      "shift_hours": "06:00-19:00",
+      "exposure": "outdoors, direct sun"
+    }
+  },
+  "cooling_what_if": {
+    "moderate": {
+      "workload": "moderate",
+      "assumption": "cooling effect expressed as C of WBGT; scenario only",
+      "results": {
+        "0": {
+          "high_or_stop_hours": 1503,
+          "reduction_pct": 0.0
+        },
+        "1": {
+          "high_or_stop_hours": 1231,
+          "reduction_pct": 18.1
+        },
+        "1.5": {
+          "high_or_stop_hours": 1091,
+          "reduction_pct": 27.4
+        },
+        "2": {
+          "high_or_stop_hours": 911,
+          "reduction_pct": 39.4
+        }
+      }
+    },
+    "heavy": {
+      "workload": "heavy",
+      "assumption": "cooling effect expressed as C of WBGT; scenario only",
+      "results": {
+        "0": {
+          "high_or_stop_hours": 1781,
+          "reduction_pct": 0.0
+        },
+        "1": {
+          "high_or_stop_hours": 1619,
+          "reduction_pct": 9.1
+        },
+        "1.5": {
+          "high_or_stop_hours": 1503,
+          "reduction_pct": 15.6
+        },
+        "2": {
+          "high_or_stop_hours": 1375,
+          "reduction_pct": 22.8
+        }
+      }
+    }
+  }
+}

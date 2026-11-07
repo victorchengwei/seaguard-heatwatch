@@ -1,0 +1,49 @@
+{
+ "hours": 3672,
+ "all_hours_pct": {
+  "unrestricted": 18.5,
+  "acclimatisation": 62.7,
+  "buffer": 11.8,
+  "withdrawal": 7.0
+ },
+ "daytime_06_18_pct": {
+  "unrestricted": 9.7,
+  "acclimatisation": 56.6,
+  "buffer": 19.9,
+  "withdrawal": 13.8
+ },
+ "daytime_by_month_pct": {
+  "5": {
+   "unrestricted": 23.1,
+   "acclimatisation": 70.4,
+   "buffer": 4.6,
+   "withdrawal": 1.9
+  },
+  "6": {
+   "unrestricted": 7.5,
+   "acclimatisation": 67.8,
+   "buffer": 19.4,
+   "withdrawal": 5.3
+  },
+  "7": {
+   "unrestricted": 2.4,
+   "acclimatisation": 49.2,
+   "buffer": 22.0,
+   "withdrawal": 26.3
+  },
+  "8": {
+   "unrestricted": 8.3,
+   "acclimatisation": 43.3,
+   "buffer": 28.5,
+   "withdrawal": 19.9
+  },
+  "9": {
+   "unrestricted": 6.9,
+   "acclimatisation": 52.5,
+   "buffer": 25.0,
+   "withdrawal": 15.6
+  }
+ },
+ "clothing": "work_clothes",
+ "note": "Estimated globe (+12 C x sun share) and 2 m wind (10 m x 0.65, min 0.5 m/s)."
+}

@@ -75,6 +75,10 @@ svg text{fill:var(--muted);font-size:10px}
 </style>
 </head>
 <body>
+<style>.topnav{display:flex;gap:4px;padding:8px 12px;background:#0a1015;flex-wrap:wrap}.topnav a{color:#9db0bd;text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px}.topnav a[aria-current]{background:#15212a;color:#fff}.topnav a:focus-visible{outline:2px solid #4fb3bd;outline-offset:2px}</style>
+<nav class="topnav" aria-label="HeatWatch views">
+  <a href="/">⌚ Worker</a><a href="/supervisor">🧑‍✈️ Supervisor</a><a href="/control">🖥️ Control centre</a><a href="/demo" aria-current="page">🎬 Guided demo</a><a href="/judges">🧭 Judge guide</a>
+</nav>
 <header>
   <h1>SeaGuard HeatWatch · Guided demo <span class="sim">SIMULATED DATA</span></h1>
   <p>Heat-stress early warning for ports, offshore, construction and logistics. Rules decide, AI only explains, people decide.</p>

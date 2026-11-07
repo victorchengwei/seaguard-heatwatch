@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeatWatch Supervisor</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#14202b;--muted:#5b6b78;--line:#d7dee4;
+--l1:#1f8a4c;--l2:#c99700;--l3:#d9640f;--l4:#c62828;--accent:#0b5cad}
+@media (prefers-color-scheme:dark){:root{--bg:#0e141a;--card:#18212a;--ink:#e8eef3;--muted:#9fb0bd;--line:#2a3743}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0}
+h2{font-size:16px;margin:0 0 10px}
+.note{font-size:13px;color:var(--muted);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.crews{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.crew{border-radius:10px;padding:12px;color:#fff}
+.crew .n{font-weight:700}.crew .loc{font-size:13px;opacity:.9}
+.crew .lv{font-size:20px;font-weight:700;margin:6px 0 2px}
+.crew .ac{font-size:13px}
+.l1{background:var(--l1)}.l2{background:var(--l2)}.l3{background:var(--l3)}.l4{background:var(--l4)}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+input[type=range]{flex:1;min-width:200px}
+.strip{display:grid;grid-template-columns:110px repeat(24,1fr);gap:2px;align-items:center;font-size:12px}
+.cell{height:22px;border-radius:3px}
+.hdr{color:var(--muted);text-align:center;font-size:11px}
+.rec{margin:8px 0 0;font-weight:600}
+.key{display:flex;gap:14px;font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.key span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.dec-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.clock{display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-size:14px;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.btn:focus-visible,.act:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.adh{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:10px 0}
+.adh div{background:var(--bg);border-radius:8px;padding:8px 10px}
+.adh b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.adh span{font-size:12px;color:var(--muted)}
+.alert{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:10px;margin-top:8px}
+.alert .top{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;font-size:14px}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.act{font:inherit;font-size:13px;padding:6px 10px;border-radius:7px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+.done{color:var(--l1);font-weight:600;font-size:14px;margin-top:6px}
+.esc{color:var(--l4);font-weight:700;font-size:14px;margin-top:6px}
+.err{color:var(--l4);font-size:13px;min-height:1em}
+.topnav{display:flex;gap:4px;padding:8px 12px;background:#0a1015;flex-wrap:wrap}
+.topnav a{color:#9db0bd;text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px}
+.topnav a[aria-current]{background:#15212a;color:#fff}
+.topnav a:focus-visible{outline:2px solid #4fb3bd;outline-offset:2px}
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="HeatWatch views">
+  <a href="/">⌚ Worker</a><a href="/supervisor" aria-current="page">🧑‍✈️ Supervisor</a><a href="/control">🖥️ Control centre</a><a href="/demo">🎬 Guided demo</a><a href="/judges">🧭 Judge guide</a>
+</nav>
+
+<main>
+<h1>SeaGuard HeatWatch · Supervisor</h1>
+<p class="note" id="dn">Loading…</p>
+
+<div class="card">
+  <div class="row"><h2 style="margin:0">Crews now</h2>
+    <input type="range" id="hr" min="0" max="23" value="9">
+    <strong id="hl"></strong></div>
+  <p class="note" id="wx" style="margin:6px 0 10px"></p>
+  <div class="crews" id="crews"></div>
+  <p class="note" style="margin:10px 0 0">Crew-level only: no personal health data is shown. The supervisor decides.</p>
+</div>
+
+<div class="card">
+  <div class="dec-head"><h2 style="margin:0">Decisions needed</h2>
+    <div class="clock">Demo clock: <strong id="clk">minute 0</strong>
+      <button class="btn" id="plus">+5 min</button><button class="btn" id="rst">Reset</button></div></div>
+  <p class="note" style="margin:6px 0 0">No plain "OK": at High or Stop the supervisor chooses a real action. No decision within 10 minutes goes to the site manager. Every decision is logged.</p>
+  <div class="adh" id="adh"></div>
+  <div class="err" id="err" role="status"></div>
+  <div id="alerts"></div>
+</div>
+
+<div class="card">
+  <h2>Plan the day: when is it safe to work?</h2>
+  <div class="strip" id="strip"></div>
+  <div id="recs"></div>
+  <div class="key"><span style="--c:var(--l1)">Normal</span><span style="--c:var(--l2)">Caution</span><span style="--c:var(--l3)">High</span><span style="--c:var(--l4)">Stop work</span></div>
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function load(){
+  const h=$("hr").value; $("hl").textContent=String(h).padStart(2,"0")+":00";
+  const r=await (await fetch("/api/supervisor/demo?hour="+h)).json();
+  $("dn").textContent=r.data_note;
+  $("wx").textContent=`Outside air ${r.now.temp_c} °C, humidity ${r.now.rh_pct}%`;
+  $("crews").innerHTML=r.crews.map(c=>`<div class="crew l${c.level}" title="${c.reasons.join(' ')}">
+    <div class="n">${c.crew} · ${c.size} people</div><div class="loc">${c.location}</div>
+    <div class="lv">${c.label}</div>${c.oshad_zone?`<div class="loc">ADOSH: ${c.oshad_zone} · TWL ${Math.round(c.twl)}</div>`:""}<div class="ac"><b>${c.schedule}</b></div><div class="ac">${c.action}</div></div>`).join("");
+  let s=`<div></div>`+Array.from({length:24},(_,i)=>`<div class="hdr">${i%3===0?String(i).padStart(2,"0"):""}</div>`).join("");
+  r.plans.forEach(p=>{s+=`<div>${p.workload} work</div>`+p.hours.map(x=>`<div class="cell l${x.level}" title="${x.hour.slice(11)} · WBGT ${x.wbgt} · level ${x.level}"></div>`).join("");});
+  $("strip").innerHTML=s;
+  $("recs").innerHTML=r.plans.map(p=>`<p class="rec">${p.recommendation}</p>`).join("");
+}
+// ---- decisions: anti-rubber-stamp (demo session kept in this tab only)
+const SID=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Math.random()).slice(2);
+let minute=0;
+const COL={3:"var(--l3)",4:"var(--l4)"}, LBL={3:"High",4:"Stop work"};
+async function post(url,body){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json(); if(!r.ok) throw new Error(j.detail||r.status); return j;}
+function renderDecisions(st){
+  $("clk").textContent="minute "+st.minute;
+  const a=st.adherence;
+  $("adh").innerHTML=[
+    [a.alerts?`${a.acted} of ${a.alerts}`:"–","alerts acted on"],
+    [a.acted_pct==null?"–":a.acted_pct+"%","acted (target ≥"+a.target_acted_pct+"%)"],
+    [a.acted_on_time_pct==null?"–":a.acted_on_time_pct+"%","acted within 10 min"],
+    [a.median_response_min==null?"–":a.median_response_min+" min","median response"],
+    [a.escalated,"escalated to site manager"]].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join("");
+  $("alerts").innerHTML=st.alerts.slice().reverse().map(x=>{
+    let body;
+    if(x.action){body=`<div class="done">✓ ${x.action_label} · minute ${x.acted_min} (${x.response_min} min)</div>`+(x.escalated?`<div class="esc">Late: was escalated at minute ${x.escalated_min}</div>`:"");}
+    else{const left=x.deadline_min-st.minute;
+      body=(x.escalated?`<div class="esc">⚠ No decision in 10 min: escalated to site manager (minute ${x.escalated_min})</div>`:`<div class="note" style="margin:6px 0 0">${left} min left to decide</div>`)+
+        `<div class="acts">${x.allowed_actions.map(o=>`<button class="act" data-id="${x.id}" data-a="${o.id}">${o.label}</button>`).join("")}</div>`;}
+    return `<div class="alert" style="--c:${COL[x.level]}"><div class="top"><strong>${x.crew} · ${LBL[x.level]}</strong><span class="note" style="margin:0">opened minute ${x.opened_min}</span></div>${body}</div>`;
+  }).join("") || '<p class="note" style="margin:8px 0 0">No crew at High or Stop at this hour.</p>';
+}
+async function syncDecisions(){try{$("err").textContent="";renderDecisions(await post("/api/supervisor/alerts/sync",{session:SID,hour:+$("hr").value,minute}));}catch(e){$("err").textContent=e.message;}}
+$("alerts").addEventListener("click",async e=>{const b=e.target.closest(".act"); if(!b) return;
+  try{$("err").textContent="";renderDecisions(await post("/api/supervisor/alerts/decide",{session:SID,alert_id:+b.dataset.id,action:b.dataset.a,minute}));}catch(err){$("err").textContent=err.message;}});
+$("plus").onclick=()=>{minute+=5;syncDecisions();};
+$("rst").onclick=async()=>{minute=0;try{renderDecisions(await post("/api/supervisor/alerts/reset",{session:SID,hour:0,minute:0}));}catch(e){} syncDecisions();};
+$("hr").addEventListener("input",load); $("hr").addEventListener("change",syncDecisions);
+{const Q=new URLSearchParams(location.search);
+ if(Q.has("hour"))$("hr").value=Math.max(0,Math.min(23,parseInt(Q.get("hour"))||0));
+ load(); syncDecisions();}
+</script>
+</body>
+</html>

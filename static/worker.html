@@ -25,16 +25,59 @@ label{display:flex;justify-content:space-between;align-items:center;gap:8px;marg
 input[type=number],select{font:inherit;width:150px;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .small{font-size:13px;color:var(--muted)}
 .offline{border:2px dashed var(--l3)}
+.status .hyd{font-size:14px;margin-top:6px}
+.urine summary{cursor:pointer;font-weight:600}
+.uc{display:grid;gap:8px;margin-top:10px}
+.uc div{display:grid;grid-template-columns:28px 1fr;column-gap:10px;align-items:center}
+.uc i{grid-row:span 2;width:28px;height:28px;border-radius:6px;border:1px solid var(--line)}
+.uc span{font-size:13px;color:var(--muted)}
+.status .sched{font-size:15px;margin-top:8px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.18);display:inline-block}
+h2{font-size:16px;margin:0 0 6px}
+.watch{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:10px 0 6px}
+.watch div{background:var(--bg);border-radius:8px;padding:8px 4px}
+.watch b{display:block;font-size:20px}
+.watch span{font-size:12px;color:var(--muted)}
+.play{background:var(--ink);color:var(--card);width:100%}
+.sent{font-size:13px;margin-top:6px;padding:8px;border-radius:8px;background:var(--bg);overflow-wrap:anywhere}
+.face{display:flex;justify-content:center;margin:10px 0 4px}
+.face svg{width:210px;height:210px;max-width:70vw;max-height:70vw}
+.face .buzz{animation:buzz .35s linear 3}
+@keyframes buzz{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@media (prefers-reduced-motion:reduce){.face .buzz{animation:none}}
+.rem{background:#fff8e6;border:1px solid #f2d48a;border-radius:8px;padding:8px 10px;font-size:14px;margin:6px 0}
+.opts{margin:6px 0}.opts summary{cursor:pointer;font-weight:600;padding:4px 0}
+.langbar{display:flex;gap:8px;align-items:center;margin:0 0 6px}.langbar label{flex:1}
+.say{border:1px solid var(--line);background:var(--card);border-radius:8px;font-size:20px;padding:6px 12px;cursor:pointer}
+[dir=rtl]{text-align:right}
+body{font-family:system-ui,"Segoe UI","Noto Sans","Noto Sans Arabic","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Malayalam","Noto Sans Tamil","Noto Sans Sinhala","Noto Sans CJK SC",sans-serif}
+.topnav{display:flex;gap:4px;padding:8px 12px;background:#0a1015;flex-wrap:wrap}
+.topnav a{color:#9db0bd;text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px}
+.topnav a[aria-current]{background:#15212a;color:#fff}
+.topnav a:focus-visible{outline:2px solid #4fb3bd;outline-offset:2px}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&family=Noto+Sans+Sinhala:wght@400;700&family=Noto+Sans+Tamil:wght@400;700&family=Noto+Nastaliq+Urdu&display=swap">
 </head>
 <body>
+<nav class="topnav" aria-label="HeatWatch views">
+  <a href="/" aria-current="page">⌚ Worker</a><a href="/supervisor">🧑‍✈️ Supervisor</a><a href="/control">🖥️ Control centre</a><a href="/demo">🎬 Guided demo</a><a href="/judges">🧭 Judge guide</a>
+</nav>
+
 <main>
 <h1>SeaGuard HeatWatch · Worker</h1>
+<div class="langbar"><label>🌐 Language <select id="lang"></select></label>
+  <button id="say" class="say" type="button" aria-label="Read aloud">🔊</button></div>
+<div class="small" id="langnote"></div>
 
 <div id="status" class="card status l1">
   <div class="lvl" id="lvl">Checking…</div>
   <div class="act" id="act"></div>
+  <div class="sched" id="sched"></div>
+  <div class="hyd" id="hyd"></div>
+  <div id="oshad" dir="ltr" lang="en" style="margin-top:8px;font-size:14px;color:inherit;text-align:left"></div>
 </div>
+
+
 
 <div class="card">
   <div class="btns">
@@ -44,10 +87,49 @@ input[type=number],select{font:inherit;width:150px;padding:6px;border-radius:8px
   <ul class="why" id="why"></ul>
 </div>
 
+<details class="card urine">
+  <summary>💧 Urine colour self-check (private, never recorded)</summary>
+  <div class="uc">
+    <div><i style="background:#f6efb0"></i><b>Pale straw</b><span>Well hydrated</span></div>
+    <div><i style="background:#d9a91a"></i><b>Dark yellow</b><span>Drink now and tell your buddy</span></div>
+    <div><i style="background:#6b3a1e"></i><b>Cola / brown</b><span>Stop and tell the medic now</span></div>
+  </div>
+  <p class="small" style="margin:8px 0 0">Based on validated urine-colour charts (Armstrong, 1994). Vitamins and some foods can change the colour. Heat and dehydration can injure the kidneys.</p>
+</details>
+
+<div class="card">
+  <h2>Watch (simulated)</h2>
+  <div class="small">Synthetic demo data, one minute per step. Heart rate, the body-temperature estimate and age stay on the watch; only the level is sent.</div>
+  <div id="face" class="face" aria-live="polite"></div>
+  <div class="small" id="buzz" style="text-align:center"></div>
+  <div class="rem" id="rem">🔔 Reminders appear here while the watch plays.</div>
+  <details class="opts"><summary>Watch settings (worker's choice)</summary>
+    <label>Colour theme <select id="theme"><option value="night">Night (black)</option><option value="navy">Navy</option><option value="olive">Olive</option><option value="sand">Sand (bright sun)</option></select></label>
+    <div class="small">Background and clock only. The safety colours (green, yellow, orange, red) never change, for everyone's safety.</div>
+    <label>Fasting mode (e.g. Ramadan) <input type="checkbox" id="fast"></label>
+    <label>Meal break at minute <input type="number" id="meal" value="50" min="0" max="59"></label>
+    <label>Acclimatisation day (1–5, 6 = done) <input type="number" id="aday" value="6" min="1" max="6"></label>
+    <label>New to heat work <input type="checkbox" id="anew"></label>
+  </details>
+  <label>Watch model <select id="dev"></select></label>
+  <div class="small" id="devinfo"></div>
+  <label>Scenario <select id="sc"><option value="normal">Normal shift</option><option value="rising">Rising heat strain</option><option value="man_down">Fall, then no movement</option></select></label>
+  <label>Age (stays on the watch) <input type="number" id="age" value="45" min="18" max="75"></label>
+  <button class="play" id="play">▶ Play 60 minutes</button>
+  <div class="watch">
+    <div><b id="wm">–</b><span>minute</span></div>
+    <div><b id="whr">–</b><span>heart rate</span></div>
+    <div><b id="wct">–</b><span>est. body °C</span></div>
+    <div><b id="wlv">–</b><span>watch level</span></div>
+  </div>
+  <div class="sent" id="sent">Sent to supervisor: nothing yet.</div>
+</div>
+
 <div class="card">
   <div class="small">Demo inputs (in the field these come from forecast, sensors and the shift plan)</div>
-  <label>Air temperature °C <input type="number" id="t" value="36" step="0.5"></label>
-  <label>Humidity % <input type="number" id="rh" value="55" step="1"></label>
+  <label>Air temperature °C <input type="number" id="t" value="32" step="0.5"></label>
+  <label>Humidity % <input type="number" id="rh" value="50" step="1"></label>
+  <label>Wind m/s (blank = unknown, assume calm) <input type="number" id="wind" value="2" step="0.5" min="0"></label>
   <label>In direct sun <input type="checkbox" id="sun" checked></label>
   <label>Workload <select id="wl"></select></label>
   <label>Clothing / PPE <select id="cl"></select></label>
@@ -57,10 +139,33 @@ input[type=number],select{font:inherit;width:150px;padding:6px;border-radius:8px
 </div>
 <p class="small">Risk levels come from fixed published work–rest rules, not from AI. The supervisor decides.</p>
 </main>
+<script src="/watch.js"></script>
+<script src="/reminders.js"></script>
+<script src="/i18n.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const OFFLINE_CARD={level:3,label:"High",action:"No connection. Follow your printed work–rest card: rest 15 min in shade every hour, drink water, buddy check.",reasons:["Network down: safe offline rule used (never silent)."]};
+const OFFLINE_CARD={level:3,label:"High",action:"No connection. Follow your printed work–rest card: rest 15 min in shade every hour, drink water, buddy check.",schedule:"Work 45 min, rest 15 min each hour",reasons:["Network down: safe offline rule used (never silent)."]};
 let unwell=false, brk=false;
+const I=window.HeatWatchI18n; let LANG="en";
+try{const v=localStorage.getItem("hw_lang"); if(v&&I.LANGS[v]) LANG=v;}catch(e){}
+$("lang").innerHTML=Object.entries(I.LANGS).map(([k,v])=>`<option value="${k}" ${k===LANG?"selected":""}>${v.name}</option>`).join("");
+function applyLang(){
+  const L=I.LANGS[LANG];
+  ["status","rem"].forEach(id=>$(id).setAttribute("dir",L.dir));
+  document.querySelector(".btns").setAttribute("dir",L.dir);
+  $("langnote").textContent = L.status==="source" ? "" : "AI-drafted translation: a native speaker must check it before real use.";
+  $("unwell").textContent=I.t(LANG,"UNWELL")+(unwell?" ✓":"");
+  $("brk").textContent=I.t(LANG,"BREAK")+(brk?" ✓":"");
+  if(envShown) show(envShown,envOffline);
+}
+$("lang").addEventListener("input",()=>{LANG=$("lang").value; try{localStorage.setItem("hw_lang",LANG);}catch(e){} applyLang();});
+$("say").onclick=()=>{
+  if(!("speechSynthesis" in window)){ $("langnote").textContent="Read-aloud is not available on this device."; return; }
+  const u=new SpeechSynthesisUtterance([$("lvl").textContent,$("act").textContent,$("sched").textContent].join(". "));
+  u.lang=I.LANGS[LANG].tts; const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith(u.lang.slice(0,2).toLowerCase()));
+  if(v) u.voice=v; else $("langnote").textContent="No "+I.LANGS[LANG].name+" voice on this device: install one in the phone settings.";
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+};
 
 async function loadOptions(){
   let o={workloads:["light","moderate","heavy","very_heavy"],clothing:["work_clothes","woven_coveralls","double_layer_coveralls","sms_polypropylene_coveralls","polyolefin_coveralls","vapour_barrier_suit"]};
@@ -69,16 +174,120 @@ async function loadOptions(){
   $("cl").innerHTML=o.clothing.map(c=>`<option>${c}</option>`).join("");
 }
 
+const LABELS={1:"Normal",2:"Caution",3:"High",4:"Stop work"};
+const SCHED_STOP="No work in these conditions";
+const WATCH_TEXT={possible_man_down:"Watch: fall and no movement, possible man down. Medic and supervisor alerted.",
+  core_temp_over_limit:"Watch: estimated body temperature over the safe limit.",
+  core_temp_near_limit:"Watch: estimated body temperature close to the limit.",
+  core_temp_rising:"Watch: estimated body temperature rising.",
+  sustained_heart_rate_over_limit:"Watch: heart rate above your safe limit for 5+ minutes.",
+  heart_rate_over_limit:"Watch: heart rate above your safe limit."};
+let watchOut=null, envShown=null, envOffline=false;
+
+// Final level = the more protective of site conditions and the watch.
 function show(a,offline){
+  envShown=a; envOffline=offline;
+  let lv=a.level, label=a.label, action=a.action, sched=a.schedule||"", reasons=[...(a.reasons||[])];
+  if(watchOut){
+    reasons=reasons.concat(watchOut.reasons.map(r=>WATCH_TEXT[r]||r));
+    if(watchOut.level>lv){
+      lv=watchOut.level; label=LABELS[lv];
+      action = lv===4 ? (watchOut.reasons.includes("possible_man_down") ? "Possible man down: stay with the worker, medic and supervisor alerted."
+                                                                         : "Stop work, cool down in shade, call the medic or supervisor.")
+             : lv===3 ? "Rest in shade now, drink water, tell your supervisor." : "Drink water now and slow down.";
+    }
+  }
+  if(lv===4 && sched!==I.T.en[I.KEYS.indexOf("SW")]) sched=SCHED_STOP;
+  // translate on the device: label, action, schedule (unknown text stays English)
+  const watchAct = watchOut&&watchOut.level>a.level;
+  label=I.t(LANG,"L"+lv);
+  action = watchAct ? (lv===4&&watchOut.reasons.includes("possible_man_down") ? I.t(LANG,"MD") : I.t(LANG,"W"+lv)) : I.tEn(LANG,action);
+  sched = I.tEn(LANG,sched);
+  const HYD={1:"Drink water regularly, before you feel thirsty.",2:"Drink 1 cup (about 250 ml) every 15-20 minutes; no more than 1.4 L per hour.",3:"Drink 1 cup (about 250 ml) every 15-20 minutes; no more than 1.4 L per hour.",4:"Cool down and sip water; no more than 1.4 L per hour. Dark or cola-coloured urine: tell the medic."};
+  $("hyd").textContent="💧 "+I.tEn(LANG,(lv===a.level&&a.hydration?a.hydration:HYD[lv]));
   const s=$("status");
-  s.className="card status l"+a.level+(offline?" offline":"");
-  $("lvl").textContent=`Level ${a.level} · ${a.label}`;
-  $("act").textContent=a.action;
-  $("why").innerHTML=(a.reasons||[]).map(r=>`<li>${r}</li>`).join("");
+  s.className="card status l"+lv+(offline?" offline":"");
+  $("lvl").textContent=`${lv} · ${label}`;
+  $("act").textContent=action;
+  $("sched").textContent=sched; $("sched").style.display=sched?"inline-block":"none";
+  $("why").innerHTML=reasons.map(r=>`<li>${r}</li>`).join("");
+  window.finalLevel=lv; window.finalRegime=(a.work_rest&&a.work_rest!=="stop")?a.work_rest:"25-50";
+  drawFace(lv, !!(watchOut&&watchOut.reasons.includes("possible_man_down")));
+  $("buzz").textContent="📳 Vibration: "+BUZZ[lv];
+  // Abu Dhabi ADOSH-SF zone (Thermal Work Limit), shown only when it was computed.
+  $("oshad").innerHTML=a.oshad_zone?`<b>Abu Dhabi ADOSH zone: ${a.oshad_zone}</b> · TWL ${Math.round(a.twl)} W/m² (estimate)`
+    +`<ul style="margin:4px 0 0;padding-left:18px">${(a.oshad_rules||[]).map(r=>`<li>${r}</li>`).join("")}</ul>`:"";
 }
 
+// ---- watch face (concept v0.1): colour + number + word + icon, readable in any language ----
+const FACE={1:{c:"#2fbf71",w:"OK",i:"drop"},2:{c:"#f2b705",w:"CAUTION",i:"drop"},3:{c:"#ff7a1a",w:"REST",i:"shade"},4:{c:"#ff3b3b",w:"STOP",i:"stop"}};
+const BUZZ={1:"no vibration",2:"1 pulse",3:"2 pulses",4:"long pulse, repeats until answered"}; // reminders use their own patterns (long + short, short tick)
+let lastFace=0;
+const THEMES={night:{bg:"#05090b",off:"#2a3a42",ink:"#c7d3da",word:"#fff"},navy:{bg:"#0b1a33",off:"#24385a",ink:"#c9d6ea",word:"#fff"},
+  olive:{bg:"#1b2214",off:"#38422c",ink:"#d3dbc4",word:"#fff"},sand:{bg:"#f3ead7",off:"#cfc3a8",ink:"#3b3326",word:"#1b1712"}};
+function drawFace(lv,manDown){
+  const T=THEMES[($("theme")||{}).value||"night"]||THEMES.night;
+  const ad=parseInt(($("aday")||{}).value||"6"), acc=ad<=5?`DAY ${ad}/5 · ${window.HeatWatchReminders.acclimPct(ad,$("anew").checked)}% WORK`:"";
+  const f=FACE[lv], now=new Date(), hh=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  const arc=(i)=>{const a0=-225+i*67.5+3,a1=a0+61.5,r=108,p=a=>[125+r*Math.cos(a*Math.PI/180),125+r*Math.sin(a*Math.PI/180)];
+    const [x0,y0]=p(a0),[x1,y1]=p(a1),on=i===lv-1;
+    return `<path d="M${x0} ${y0} A108 108 0 0 1 ${x1} ${y1}" stroke="${on?FACE[i+1].c:T.off}" stroke-width="${on?14:9}" fill="none" stroke-linecap="round"/>`;};
+  const icon=f.i==="drop"?`<path d="M125 186 c-9 12 -14 19 -14 25 a14 14 0 0 0 28 0 c0 -6 -5 -13 -14 -25z" fill="${f.c}"/>`
+    :f.i==="shade"?`<path d="M105 204 a20 14 0 0 1 40 0z" fill="${f.c}"/><line x1="125" y1="204" x2="125" y2="222" stroke="${f.c}" stroke-width="3"/>`
+    :`<polygon points="117,186 133,186 144,197 144,213 133,224 117,224 106,213 106,197" fill="${f.c}"/><rect x="113" y="203" width="24" height="5" fill="#000"/>`;
+  const word=manDown?I.t(LANG,"FMD"):I.t(LANG,"F"+lv);
+  const fit=word.length>8?' textLength="196" lengthAdjust="spacingAndGlyphs"':'';
+  $("face").innerHTML=`<svg viewBox="0 0 250 250" role="img" aria-label="Watch: level ${lv}, ${word}" class="${lv>lastFace&&lv>=2?'buzz':''}">
+    <circle cx="125" cy="125" r="124" fill="${T.bg}" stroke="#3b4a52" stroke-width="2"/>${[0,1,2,3].map(arc).join("")}
+    <text x="125" y="${acc?50:58}" text-anchor="middle" font-size="19" fill="${T.ink}" font-family="Arial">${hh}</text>
+    ${acc?`<text x="125" y="70" text-anchor="middle" font-size="12" fill="${T.ink}" font-family="Arial" font-weight="700">${acc}</text>`:""}
+    <text x="125" y="140" text-anchor="middle" font-size="84" font-weight="700" fill="${f.c}" font-family="Arial">${lv}</text>
+    <text x="125" y="168" text-anchor="middle" font-size="${word.length>8?20:24}" font-weight="700" fill="${T.word}" letter-spacing="${/^[\x00-\x7F]+$/.test(word)?2:0}"${fit}>${word}</text>${icon}</svg>`;
+  lastFace=lv;
+}
+
+// ---- any watch brand: the same rules run on every device; only the connection differs ----
+const DEVICES={
+  wearos:{name:"Wear OS watch (e.g. Samsung, Google Pixel)",route:"Health Services on the watch / Health Connect on the phone"},
+  apple:{name:"Apple Watch",route:"HealthKit + watchOS app"},
+  garmin:{name:"Garmin",route:"Connect IQ app on the watch"},
+  huawei:{name:"Huawei watch",route:"Huawei Health Kit"},
+  other:{name:"Other smartwatch (e.g. Titan, Amazfit)",route:"Through the phone's health app, if the brand shares heart rate (to check per brand)"},
+  strap:{name:"Chest strap + phone (no smartwatch)",route:"Bluetooth heart-rate profile; the phone runs the watch rules"},
+};
+$("dev").innerHTML=Object.entries(DEVICES).map(([k,d])=>`<option value="${k}">${d.name}</option>`).join("");
+function devInfo(){const d=DEVICES[$("dev").value];
+  $("devinfo").innerHTML=`Uses: heart rate + motion (fall). Connection: ${d.route}. <b>Same rules and same face on every brand.</b> Prototype: simulated, no real device connected yet.`;}
+$("dev").addEventListener("input",devInfo); devInfo();
+
+// ---- simulated watch: all body data stays in this browser tab ----
+let timer=null;
+function stopWatch(){ if(timer){clearInterval(timer);timer=null;} $("play").textContent="▶ Play 60 minutes"; }
+$("play").onclick=()=>{
+  if(timer){stopWatch();return;}
+  const W=window.HeatWatchWatch, samples=W.scenario($("sc").value), mem={}, rmem={}, R=window.HeatWatchReminders;
+  $("rem").textContent="🔔 Reminders appear here while the watch plays.";
+  const settings={age:parseInt($("age").value||"45"),acclimatized:$("acc").checked};
+  let i=0; $("play").textContent="■ Stop";
+  timer=setInterval(()=>{
+    if(i>=samples.length){stopWatch();return;}
+    const r=W.watchMinute(mem,samples[i],settings);
+    $("wm").textContent=samples[i].minute; $("whr").textContent=r.local.hr;
+    $("wct").textContent=r.local.ct_est.toFixed(1); $("wlv").textContent=r.outbound.level;
+    watchOut=r.outbound;
+    $("sent").textContent=($("off").checked?"No connection, queued for supervisor: ":"Sent to supervisor: ")+JSON.stringify(r.outbound)+"  (no heart rate, temperature or age)";
+    if(envShown) show(envShown,envOffline);
+    const rr=R.remindMinute(rmem,{minute:samples[i].minute,level:window.finalLevel||1,regime:window.finalRegime||"75-100",
+      fasting:$("fast").checked,mealAt:parseInt($("meal").value)});
+    if(rr.buzz) $("rem").innerHTML=`🔔 <b>${rr.buzz.minute}′</b> · 📳 ${rr.buzz.pattern}<br>`+rr.buzz.codes.map(c=>I.t(LANG,"R_"+c)).join("<br>");
+    i++;
+  },350);
+};
+$("sc").addEventListener("input",()=>{stopWatch();watchOut=null;["wm","whr","wct","wlv"].forEach(id=>$(id).textContent="–");$("sent").textContent="Sent to supervisor: nothing yet.";if(envShown)show(envShown,envOffline);});
+
 async function update(){
-  const body={temp_c:parseFloat($("t").value),rh_pct:parseFloat($("rh").value),sun:$("sun").checked,
+  const wv=$("wind").value.trim();
+  const body={wind_ms:wv===""?null:parseFloat(wv),temp_c:parseFloat($("t").value),rh_pct:parseFloat($("rh").value),sun:$("sun").checked,
     workload:$("wl").value,clothing:$("cl").value,acclimatized:$("acc").checked,
     minutes_worked:parseInt($("min").value||"0"),feels_unwell:unwell,needs_break:brk};
   if($("off").checked){ showOffline(); return; }
@@ -99,10 +308,20 @@ function showOffline(){
   show(OFFLINE_CARD,true);
 }
 
-$("unwell").onclick=()=>{unwell=!unwell;$("unwell").textContent=unwell?"Unwell reported ✓":"I feel unwell";update();};
-$("brk").onclick=()=>{brk=!brk;$("brk").textContent=brk?"Break requested ✓":"I need a break";update();};
-["t","rh","sun","wl","cl","acc","min","off"].forEach(id=>$(id).addEventListener("input",update));
-loadOptions().then(update);
+$("unwell").onclick=()=>{unwell=!unwell;$("unwell").textContent=I.t(LANG,"UNWELL")+(unwell?" ✓":"");update();};
+$("brk").onclick=()=>{brk=!brk;$("brk").textContent=I.t(LANG,"BREAK")+(brk?" ✓":"");update();};
+applyLang();
+["theme","aday","anew","t","rh","wind","sun","wl","cl","acc","min","off"].forEach(id=>$(id).addEventListener("input",update));
+// One-click demo set-up from the judge guide, e.g. /?sc=man_down&play=1&lang=ar&t=45&rh=40
+const Q=new URLSearchParams(location.search);
+if(Q.get("lang")&&I.LANGS[Q.get("lang")]){LANG=Q.get("lang");$("lang").value=LANG;applyLang();}
+[["t","t"],["rh","rh"],["wind","wind"],["min","min"],["age","age"]].forEach(([k,id])=>{if(Q.has(k))$(id).value=Q.get(k);});
+if(Q.has("sun"))$("sun").checked=Q.get("sun")!=="0";
+if(Q.has("acc"))$("acc").checked=Q.get("acc")!=="0";
+if(Q.has("fast")){$("fast").checked=Q.get("fast")!=="0";}
+if(Q.has("sc"))$("sc").value=Q.get("sc");
+loadOptions().then(()=>{if(Q.has("wl"))$("wl").value=Q.get("wl");return update();})
+  .then(()=>{if(Q.get("play")==="1"){$("face").scrollIntoView({behavior:"smooth",block:"center"});$("play").click();}});
 </script>
 </body>
 </html>

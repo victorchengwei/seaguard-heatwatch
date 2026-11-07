@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeatWatch Control Centre</title>
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+<style>
+:root{--bg:#0d151b;--panel:#15212a;--ink:#e6eef3;--muted:#9db0bd;--line:#26363f;--teal:#4fb3bd;
+--l1:#2fbf71;--l2:#f2b705;--l3:#ff7a1a;--l4:#ff3b3b;--accent:#2f8fd8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+nav.top{display:flex;gap:4px;padding:8px 16px;background:#0a1015;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav.top a{color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px}
+nav.top a[aria-current]{background:var(--panel);color:#fff}
+main{max-width:1280px;margin:0 auto;padding:16px}
+.hero{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.hero img{display:block;width:100%;height:240px;object-fit:cover;object-position:center 40%;filter:brightness(.55)}
+.hero .txt{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:18px}
+.hero h1{margin:0;font-size:28px;letter-spacing:.01em}
+.hero p{margin:4px 0 0;max-width:760px;color:#d5e1e8}
+.hero .cap{position:absolute;top:8px;right:10px;font-size:11px;background:rgba(0,0,0,.6);padding:3px 8px;border-radius:6px;color:#cfd8de}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.flow div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;color:var(--muted)}
+.flow b{display:block;color:#fff;font-size:15px}
+.flow .human{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal) inset}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr 1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:16px;margin:0 0 8px}
+.note{font-size:12.5px;color:var(--muted);margin:4px 0 8px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=range]{flex:1;min-width:160px}
+.crews{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.crew{border-radius:10px;padding:10px;color:#111}
+.crew .n{font-weight:700}.crew .s{font-size:12.5px}
+.c1{background:var(--l1)}.c2{background:var(--l2)}.c3{background:var(--l3)}.c4{background:var(--l4);color:#fff}
+.watches{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.w{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:10px;padding:10px;background:#101a21}
+.w b{font-size:22px;color:var(--c)}
+.ev{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:10px;padding:10px;margin-top:8px;background:#101a21}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.act,.btn{font:inherit;font-size:13px;font-weight:600;padding:7px 11px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.act:focus-visible,.btn:focus-visible,nav.top a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.done{color:var(--l1);font-weight:600;font-size:13.5px;margin-top:6px}
+.esc{color:var(--l4);font-weight:700;font-size:13.5px;margin-top:6px}
+.log{font-size:13px;max-height:260px;overflow:auto;margin:0;padding-left:18px}
+.log li{margin:3px 0}
+.adh{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin:6px 0}
+.adh div{background:#101a21;border-radius:8px;padding:7px 9px}.adh b{display:block;font-size:18px}.adh span{font-size:11.5px;color:var(--muted)}
+.err{color:var(--l4);font-size:13px;min-height:1em}
+#map{height:340px;border-radius:10px;border:1px solid var(--line);background:#1b2730;margin-bottom:8px}
+.leaflet-container{font:inherit}
+.leaflet-tooltip.crewtip{background:#0d151b;color:#e6eef3;border:1px solid #3b4a52;font-size:12px;font-weight:600;padding:2px 6px}
+.leaflet-tooltip.crewtip::before{display:none}
+.wdot{width:18px;height:18px;border-radius:50%;border:2px solid #fff;background:var(--c);box-shadow:0 0 0 2px rgba(0,0,0,.4)}
+.wdot.blink{animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{box-shadow:0 0 0 2px rgba(255,59,59,.9)}50%{box-shadow:0 0 0 12px rgba(255,59,59,0)}}
+@media (prefers-reduced-motion:reduce){.wdot.blink{animation:none;outline:3px solid #fff}}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;background:var(--c)}
+</style>
+</head>
+<body>
+<nav class="top" aria-label="HeatWatch views">
+  <a href="/">⌚ Worker</a><a href="/supervisor">🧑‍✈️ Supervisor</a><a href="/control" aria-current="page">🖥️ Control centre</a><a href="/demo">🎬 Guided demo</a><a href="/judges">🧭 Judge guide</a>
+</nav>
+<main>
+<section class="hero">
+  <img src="/img/control_concept.jpg" alt="Concept image of a maritime control room with operators at their desks">
+  <span class="cap">AI-generated concept image · vision, not a real site</span>
+  <div class="txt">
+    <h1>Control Centre · Human in command</h1>
+    <p>Watches and site sensors detect. Fixed safety rules recommend. <b>A person decides</b>, and every decision is logged. Nothing here acts on its own.</p>
+  </div>
+</section>
+
+<div class="flow" aria-label="How a decision is made">
+  <div><b>1 · Detect</b>Watches, weather, site sensors</div>
+  <div><b>2 · Recommend</b>Fixed rules (WBGT + ADOSH TWL); AI only explains</div>
+  <div class="human"><b>3 · Human decides</b>Duty officer or supervisor chooses a real action</div>
+  <div><b>4 · Log &amp; learn</b>Who decided, what, how fast: reviewed after each shift</div>
+</div>
+
+<div class="grid">
+<div>
+  <section class="panel">
+    <div class="row"><h2 style="margin:0">Site now</h2><input type="range" id="hr" min="0" max="23" value="9" aria-label="Hour of day"><strong id="hl"></strong></div>
+    <p class="note" id="wx"></p>
+    <div id="map" role="img" aria-label="Site map: crews and watches as coloured dots"></div>
+    <div class="legend"><span style="--c:var(--l1)">Normal</span><span style="--c:var(--l2)">Caution</span><span style="--c:var(--l3)">High</span><span style="--c:var(--l4)">Stop work</span><span>Big dot = crew · small dot = one watch (blinks on man down)</span></div>
+    <p class="note" style="margin:4px 0 8px">Khalifa Port area, Abu Dhabi. Crew and watch positions are synthetic, for the demo only.</p>
+    <div class="crews" id="crews"></div>
+    <p class="note" id="dn"></p>
+  </section>
+
+  <section class="panel">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">Live watches (simulated)</h2>
+      <button class="btn" id="go">▶ Start live demo</button></div>
+    <p class="note">Each watch sends only its level and a reason code under a work ID. No heart rate, temperature or age leaves the watch.</p>
+    <div class="watches" id="watches"></div>
+    <div id="events"></div>
+  </section>
+</div>
+
+<div>
+  <section class="panel">
+    <h2>Decisions needed (crews at High or Stop)</h2>
+    <p class="note">No plain "OK": a real action is required. No decision in 10 minutes goes to the site manager. Demo clock: <b id="clk">minute 0</b>
+      <button class="btn ghost" id="plus">+5 min</button></p>
+    <div class="adh" id="adh"></div>
+    <div class="err" id="err" role="status"></div>
+    <div id="alerts"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Human decision log</h2>
+    <p class="note">Every action is a person's choice, with time and role. In a pilot this log is kept for review and audit.</p>
+    <ol class="log" id="log"><li class="note">No decisions yet.</li></ol>
+  </section>
+</div>
+</div>
+</main>
+<script src="/vendor/leaflet/leaflet.js"></script>
+<script src="/watch.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const LOG=[];
+function logIt(text){LOG.unshift(`${new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})} · ${text}`);
+  $("log").innerHTML=LOG.map(x=>`<li>${x}</li>`).join("");}
+
+// ---- site map (Leaflet 1.9.4, bundled; map tiles from CARTO, data OpenStreetMap)
+const POS={"Crew A":[24.8095,54.6440],"Crew B":[24.8083,54.6418],"Crew C":[24.8122,54.6508],"Crew D":[24.8038,54.6562]};
+const WPOS={"W-07":[24.8079,54.6423],"W-03":[24.8099,54.6447],"W-11":[24.8034,54.6567]};
+const HEX={1:"#2fbf71",2:"#f2b705",3:"#ff7a1a",4:"#ff3b3b"};
+let map=null, crewM={}, watchM={};
+if(window.L){
+  map=L.map("map",{zoomControl:true,attributionControl:true}).setView([24.8085,54.6490],15);
+  map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'}).addTo(map);
+}else{ $("map").innerHTML='<p class="note" style="padding:12px">Map could not load (offline). Crew list below still works.</p>'; }
+function paintCrews(crews){ if(!map) return;
+  crews.forEach(c=>{const p=POS[c.crew]; if(!p) return;
+    if(!crewM[c.crew]) crewM[c.crew]=L.circleMarker(p,{radius:16,weight:3,color:"#fff",fillOpacity:.9}).addTo(map)
+      .bindTooltip("",{permanent:true,direction:"right",offset:[14,0],className:"crewtip"});
+    crewM[c.crew].setStyle({fillColor:HEX[c.level]}).setTooltipContent(`${c.crew} · ${c.label}`);});
+}
+function paintWatches(state){ if(!map) return;
+  WATCHES.forEach(w=>{const o=state[w.id]||{level:1,reasons:[]}, man=o.reasons.includes("possible_man_down");
+    const icon=L.divIcon({className:"",iconSize:[18,18],html:`<div class="wdot ${man?"blink":""}" style="--c:${HEX[o.level]}" title="${w.id}"></div>`});
+    if(!watchM[w.id]) watchM[w.id]=L.marker(WPOS[w.id],{icon,keyboard:false}).addTo(map).bindTooltip(w.id,{direction:"top",offset:[0,-8]});
+    else watchM[w.id].setIcon(icon);});
+}
+
+// ---- site and crews (same API as the supervisor view)
+async function load(){
+  const h=$("hr").value; $("hl").textContent=String(h).padStart(2,"0")+":00";
+  const r=await (await fetch("/api/supervisor/demo?hour="+h)).json();
+  $("dn").textContent=r.data_note;
+  $("wx").textContent=`Outside air ${r.now.temp_c} °C, humidity ${r.now.rh_pct}%`;
+  $("crews").innerHTML=r.crews.map(c=>`<div class="crew c${c.level}"><div class="n">${c.crew} · ${c.size}</div>
+    <div class="s">${c.location}</div><div class="n">${c.label}</div>${c.oshad_zone?`<div class="s">ADOSH ${c.oshad_zone}</div>`:""}<div class="s">${c.schedule}</div></div>`).join("");
+  paintCrews(r.crews);
+}
+
+// ---- decisions (anti-rubber-stamp), shared with the supervisor view
+const SID=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Math.random()).slice(2);
+let minute=0;
+const COL={3:"var(--l3)",4:"var(--l4)"}, LBL={3:"High",4:"Stop work"};
+async function post(url,body){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json(); if(!r.ok) throw new Error(j.detail||r.status); return j;}
+function renderDecisions(st){
+  $("clk").textContent="minute "+st.minute; const a=st.adherence;
+  $("adh").innerHTML=[[a.alerts?`${a.acted}/${a.alerts}`:"–","acted on"],[a.acted_on_time_pct==null?"–":a.acted_on_time_pct+"%","within 10 min"],
+    [a.median_response_min==null?"–":a.median_response_min+" min","median response"],[a.escalated,"escalated"]]
+    .map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join("");
+  $("alerts").innerHTML=st.alerts.slice().reverse().map(x=>{
+    let body;
+    if(x.action) body=`<div class="done">✓ ${x.action_label} · minute ${x.acted_min}</div>`;
+    else body=(x.escalated?`<div class="esc">⚠ Escalated to site manager</div>`:`<div class="note">${x.deadline_min-st.minute} min left</div>`)+
+      `<div class="acts">${x.allowed_actions.map(o=>`<button class="act" data-id="${x.id}" data-a="${o.id}" data-c="${x.crew}" data-l="${o.label}">${o.label}</button>`).join("")}</div>`;
+    return `<div class="ev" style="--c:${COL[x.level]}"><b>${x.crew} · ${LBL[x.level]}</b>${body}</div>`;}).join("")
+    || '<p class="note">No crew at High or Stop at this hour.</p>';
+}
+async function sync(){try{$("err").textContent="";renderDecisions(await post("/api/supervisor/alerts/sync",{session:SID,hour:+$("hr").value,minute}));}catch(e){$("err").textContent=e.message;}}
+$("alerts").addEventListener("click",async e=>{const b=e.target.closest(".act"); if(!b) return;
+  try{renderDecisions(await post("/api/supervisor/alerts/decide",{session:SID,alert_id:+b.dataset.id,action:b.dataset.a,minute}));
+    logIt(`Supervisor chose "${b.dataset.l}" for ${b.dataset.c}`);}catch(err){$("err").textContent=err.message;}});
+$("plus").onclick=()=>{minute+=5;sync();};
+$("hr").addEventListener("input",load); $("hr").addEventListener("change",sync);
+
+// ---- live watches: synthetic scenarios, each watch runs the same on-device rules
+const W=window.HeatWatchWatch;
+const WATCHES=[{id:"W-07",crew:"Crew B",sc:"man_down"},{id:"W-03",crew:"Crew A",sc:"rising"},{id:"W-11",crew:"Crew D",sc:"normal"}];
+const CODE={possible_man_down:"possible man down",core_temp_over_limit:"body heat over limit",core_temp_near_limit:"body heat near limit",
+  core_temp_rising:"body heat rising",sustained_heart_rate_over_limit:"heart rate high 5+ min",heart_rate_over_limit:"heart rate high"};
+const LC={1:"var(--l1)",2:"var(--l2)",3:"var(--l3)",4:"var(--l4)"};
+const CHOICES={man:["Send first aider now","Call worker by radio","Checked: false alarm"],
+               heat:["Rest + cool down now","Send first aider","Checked: worker OK"]};
+let timer=null, open={}, step=0;
+function drawWatches(state){
+  $("watches").innerHTML=WATCHES.map(w=>{const o=state[w.id]||{level:1,reasons:[]};
+    return `<div class="w" style="--c:${LC[o.level]}"><div class="note" style="margin:0">${w.crew} · ${w.id}</div><b>${o.level}</b>
+      <div style="font-size:13px">${o.reasons.map(r=>CODE[r]||r).join(", ")||"normal"}</div></div>`;}).join("");
+}
+function drawEvents(){
+  $("events").innerHTML=Object.values(open).reverse().map(e=>{
+    const late = !e.done && step-e.at>=3;
+    const body = e.done ? `<div class="done">✓ ${e.done}</div>`
+      : (late?`<div class="esc">⚠ No answer in 3 min: escalated to site manager (first aid must reach the worker within 3 min)</div>`:`<div class="note">${3-(step-e.at)} min to answer</div>`)
+        + `<div class="acts">${CHOICES[e.kind].map(c=>`<button class="act" data-w="${e.id}" data-c="${c}">${c}</button>`).join("")}</div>`;
+    return `<div class="ev" style="--c:${LC[e.level]}"><b>${e.crew} · ${e.id} · ${e.kind==="man"?"Possible man down":"Heat strain"}</b>
+      <div class="note" style="margin:2px 0 0">Minute ${e.at} · the watch suggests; a person decides.</div>${body}</div>`;}).join("");
+}
+$("events").addEventListener("click",e=>{const b=e.target.closest(".act"); if(!b) return;
+  const ev=open[b.dataset.w]; if(!ev||ev.done) return;
+  ev.done=`${b.dataset.c} · decided by duty officer at minute ${step} (${step-ev.at} min)`;
+  logIt(`Duty officer chose "${b.dataset.c}" for ${ev.crew} ${ev.id}`); drawEvents();});
+$("go").onclick=()=>{
+  if(timer){clearInterval(timer);timer=null;$("go").textContent="▶ Start live demo";return;}
+  const mems={}, samples={}; WATCHES.forEach(w=>{mems[w.id]={};samples[w.id]=W.scenario(w.sc);});
+  open={}; step=0; const state={}; $("go").textContent="■ Stop";
+  timer=setInterval(()=>{
+    WATCHES.forEach(w=>{const s=samples[w.id][step]; if(!s) return;
+      const r=W.watchMinute(mems[w.id],s,{age:45,acclimatized:true}); state[w.id]=r.outbound;
+      const man=r.outbound.reasons.includes("possible_man_down");
+      if(r.outbound.level>=3 && !open[w.id]) open[w.id]={id:w.id,crew:w.crew,at:step,level:r.outbound.level,kind:man?"man":"heat"};
+      if(open[w.id]&&!open[w.id].done){open[w.id].level=Math.max(open[w.id].level,r.outbound.level); if(man) open[w.id].kind="man";}
+    });
+    drawWatches(state); paintWatches(state); drawEvents(); step++;
+    if(step>=60){clearInterval(timer);timer=null;$("go").textContent="▶ Start live demo";}
+  },350);
+};
+{const Q=new URLSearchParams(location.search);
+ if(Q.has("hour"))$("hr").value=Math.max(0,Math.min(23,parseInt(Q.get("hour"))||0));
+ drawWatches({}); paintWatches({}); load(); sync();
+ if(Q.get("live")==="1"&&$("go"))setTimeout(()=>$("go").click(),600);}
+</script>
+</body>
+</html>
