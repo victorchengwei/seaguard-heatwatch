@@ -7,6 +7,8 @@ Future Health Digital Innovation Challenge · [Population Health] Climate-Resili
 
 **Live demo:** [Judge guide](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/judges) · [Guided demo](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/demo) · [Worker app](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/)
 
+**Backup mirror (Azure):** [Judge guide](https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/judges) · [Guided demo](https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/demo) · [Worker app](https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/) (free tier: the first load can take about 30 s)
+
 **In 30 seconds:** Heat illness hits outdoor workers before they or their supervisors notice. HeatWatch combines site weather (WBGT and the Abu Dhabi ADOSH Thermal Work Limit), a watch's heart rate and each worker's context (workload, PPE, acclimatisation, how they feel today) in a transparent rules engine. Every level comes with one clear action. On a 52-case simulated benchmark it caught every RED case (15/15), with a median of about 7 minutes' warning, and gave **0 false alarms on 16 safe cases** versus 8/16 for WBGT alone. A back-test on real Abu Dhabi weather (May to September 2025) shows most dangerous hours fall outside the UAE midday work ban. It speaks 12 worker languages, works offline, fails safe, and never uses data for discipline, rating, hiring or insurance.
 
 > ⚠️ All worker data is **SIMULATED**; weather in the back-test is real (Open-Meteo, CC BY 4.0). Results show the safety logic works as designed, not field performance. Not a medical device.

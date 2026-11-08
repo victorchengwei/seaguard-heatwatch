@@ -89,7 +89,7 @@ svg text{fill:var(--muted);font-size:10px}
     <button id="play">Play</button>
     <span class="min" id="minLbl">Minute 1</span>
     <input type="range" id="min" min="1" max="30" value="1" aria-label="Minute of shift">
-    <select id="lang" aria-label="Language"><option value="en">English</option><option value="ar">العربية</option><option value="hi">हिन्दी</option><option value="ur">اردو</option><option value="bn">বাংলা</option><option value="ne">नेपाली</option><option value="tl">Tagalog</option></select>
+    <select id="lang" aria-label="Language"><option value="en">English</option><option value="ar">العربية</option><option value="hi">हिन्दी</option><option value="ur">اردو</option><option value="bn">বাংলা</option><option value="ne">नेपाली</option><option value="tl">Tagalog</option><option value="ml">മലയാളം</option><option value="ta">தமிழ்</option><option value="si">සිංහල</option><option value="sw">Kiswahili</option><option value="zh">中文</option></select>
     <label class="tg"><input type="checkbox" id="fail"> Simulate explainer failure</label>
     <label class="tg"><input type="checkbox" id="tech"> Technical view (judges)</label>
   </div>
@@ -171,7 +171,7 @@ const TOUR=[
  {m:11,w:"W05",t:"Minute 11. W05 cleans a tank in a vapour-barrier suit (+11 °C effective heat). RED. The explanation is added after the alert, never before."},
  {m:11,w:"W05",t:"If the AI explainer fails, the failure is shown openly. The alert and the action do not change: rules decide.",fail:true},
  {m:25,w:"W07",t:"W07 welds on deck. On body signals alone he reads GREEN. Today he checks in 'tired, slept badly'. Only he sees that answer; his own limits get stricter, so he gets an AMBER break sooner. RED limits never change.",ci:{mood:"tired",sleep:"poor"}},
- {m:11,w:"W05",t:"Gulf sites bring together workers from many countries. W05 can read the alert in Hindi, Urdu, Bengali, Nepali, Tagalog, Arabic or English, with pictograms, and the alert says plainly that heat breaks are paid.",lang:"hi"},
+ {m:11,w:"W05",t:"Gulf sites bring together workers from many countries. W05 can read the alert in 12 languages (English, Arabic, Hindi, Urdu, Bengali, Malayalam, Tamil, Nepali, Tagalog, Sinhala, Swahili, Chinese), with pictograms, and the alert says plainly that heat breaks are paid.",lang:"hi"},
  {m:11,w:"W05",t:"Supervisors are trained before they go on site: respect, language, culture and faith (including Ramadan fasting), and workers' fear of losing pay. Until training is complete, every alert is also copied to the safety officer.",untrain:true},
  {m:30,w:"W01",t:"End of shift. W01 stayed GREEN all along. GREEN means 'inside the screening limits', not medical clearance."}];
 

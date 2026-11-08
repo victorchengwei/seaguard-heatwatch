@@ -318,5 +318,5 @@ def supervisor_training():
 def languages():
     return {"worker_languages": {"en": "English", "ar": "العربية",
                                  **{k: v["name"] for k, v in wellbeing.WORKER_LANGS.items()}},
-            "note": "Hindi, Urdu, Bengali, Nepali and Tagalog texts are DRAFT translations; "
+            "note": "All non-English texts are AI-DRAFT translations; "
                     "native-speaker review required before field use."}
