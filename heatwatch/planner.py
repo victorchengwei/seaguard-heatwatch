@@ -31,9 +31,14 @@ class Crew:
 
 
 def crew_status(crew: Crew, temp_c: Optional[float], rh_pct: Optional[float],
-                stale: bool = False, solar: float = 1.0) -> dict:
-    """Level for the crew = the most protective level of its members."""
-    cond = Conditions(temp_c=temp_c, rh_pct=rh_pct, sun=crew.sun, stale=stale, solar=solar)
+                stale: bool = False, solar: float = 1.0, measured_wbgt: Optional[float] = None,
+                measured_globe_c: Optional[float] = None) -> dict:
+    """Level for the crew = the most protective level of its members.
+
+    measured_wbgt / measured_globe_c come from an on-site heat-stress sensor when one covers the crew.
+    """
+    cond = Conditions(temp_c=temp_c, rh_pct=rh_pct, sun=crew.sun, stale=stale, solar=solar,
+                      measured_wbgt=measured_wbgt, measured_globe_c=measured_globe_c)
     a = assess(cond, Worker(crew.workload, crew.clothing, True, False, crew.minutes_worked))
     level, reasons, action = a.level, list(a.reasons), a.action
     order = list(REGIMES) + ["stop"]

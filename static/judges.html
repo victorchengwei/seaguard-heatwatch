@@ -40,7 +40,7 @@ td a{color:#8fd0d7}
 </head>
 <body>
 <nav class="top" aria-label="HeatWatch views">
-  <a href="/">⌚ Worker</a><a href="/supervisor">🧑‍✈️ Supervisor</a><a href="/control">🖥️ Control centre</a><a href="/demo">🎬 Guided demo</a><a href="/judges" aria-current="page">🧭 Judge guide</a>
+  <a href="/command">🛰️ Live command centre</a><a href="/">⌚ Worker</a><a href="/supervisor">🧑‍✈️ Supervisor</a><a href="/control">🖥️ Control centre</a><a href="/demo">🎬 Guided demo</a><a href="/judges" aria-current="page">🧭 Judge guide</a>
 </nav>
 <main>
 <h1>SeaGuard HeatWatch · 3-minute judge guide</h1>
@@ -50,6 +50,10 @@ td a{color:#8fd0d7}
 <p class="note">📂 <a href="https://github.com/victorchengwei/seaguard-heatwatch" target="_blank" rel="noopener">Source code and README on GitHub</a> · Backup demo links: <a href="https://seaguard-heatwatch-1061831968639.asia-east1.run.app/judges">Google Cloud Run</a> · <a href="https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/judges">Microsoft Azure</a> (Azure may take about 30 s to wake up)</p>
 
 <ol class="steps">
+  <li><div><h2>NEW · Live command centre: 3 sites, live weather, act before the limit</h2>
+    <p>Khalifa Port, an offshore platform and Taichung Port on one screen that updates by itself. Live weather (Open-Meteo) + on-site WBGT stations every 15 s + simulated watches and check-ins → fixed rules (sensor and weather model both checked; the stricter wins) → a 12-hour forecast per crew → a proactive rest-cycle plan 30 min <b>before</b> High or Stop. A person chooses the action. Watch it build from a safe dawn to a dangerous noon on a real July 2025 Abu Dhabi day, or try the heatwave what-if.</p>
+    <span class="time">≈ 60 s · Live command centre</span></div>
+    <a class="go" href="/command?mode=replay&h=5">Open ▸</a></li>
   <li><div><h2>A worker on a warm morning</h2>
     <p>One level, one action, a water reminder and the Abu Dhabi ADOSH zone. Big buttons: "I feel unwell", "I need a break".</p>
     <span class="time">≈ 30 s · Worker</span></div>
@@ -91,8 +95,8 @@ td a{color:#8fd0d7}
   <tbody>
     <tr><td>Health impact and clinical relevance</td><td>Hydration and kidney protection on every level; ACGIH strain limits on the watch (steps 1, 3)</td></tr>
     <tr><td>Technical depth and architecture</td><td>WBGT + Abu Dhabi TWL, the stricter wins; body heat estimated from heart rate on the watch (steps 2, 3)</td></tr>
-    <tr><td>Working solution and demo quality</td><td>Everything on this page runs live; 73 automated tests</td></tr>
-    <tr><td>Responsible AI, safety and data governance</td><td>AI never sets a level; no plain "OK"; body data stays on the watch; every decision logged (steps 3, 4, 5)</td></tr>
+    <tr><td>Working solution and demo quality</td><td>Live command centre with live weather for 3 sites, auto-refreshing every 15 s with on-site sensor readings (step 1); 161 automated tests</td></tr>
+    <tr><td>Responsible AI, safety and data governance</td><td>AI never sets a level; no plain "OK"; body data stays on the watch; alerts are occupational, not a diagnosis; a weather-feed failure can only raise a level (steps 1, 4, 5, 6)</td></tr>
     <tr><td>Scalability and deployment readiness</td><td>Any watch brand, any cloud, 12 languages, works offline with a printed fallback</td></tr>
     <tr><td>Commercial viability and path to pilot</td><td>Pilot targets and pay-on-results in the deck (slide 11)</td></tr>
   </tbody>
@@ -100,7 +104,7 @@ td a{color:#8fd0d7}
 
 <div class="honest"><b>Please note</b>
   <ul>
-    <li>Workers, crews, watches and positions are synthetic demo data. The back-test uses real Abu Dhabi 2025 weather (Open-Meteo, CC BY 4.0).</li>
+    <li>Workers, crews, watches, check-ins and positions are synthetic demo data. Live command centre weather is real and live (Open-Meteo forecast API). The back-test uses real Abu Dhabi 2025 weather (Open-Meteo, CC BY 4.0).</li>
     <li>All non-English texts are AI-drafted translations, to be checked by native speakers.</li>
     <li>TWL is our own estimate, to be validated against the official ADOSH calculator.</li>
     <li>Not a medical device. Thresholds will be reviewed with clinical mentors.</li>

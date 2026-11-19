@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeatWatch Live Command Centre</title>
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+<style>
+:root{--bg:#0b1217;--panel:#131e26;--panel2:#0f1820;--ink:#e6eef3;--muted:#9db0bd;--line:#24343e;--teal:#4fb3bd;
+--l1:#2fbf71;--l2:#f2b705;--l3:#ff7a1a;--l4:#ff3b3b;--accent:#2f8fd8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+nav.top{display:flex;gap:4px;padding:8px 16px;background:#070c10;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav.top a{color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px}
+nav.top a[aria-current]{background:var(--panel);color:#fff}
+nav.top a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+main{max-width:1440px;margin:0 auto;padding:14px 16px 40px}
+header.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+h1{margin:0;font-size:24px;letter-spacing:.01em}
+.sub{color:var(--muted);margin:2px 0 0;font-size:13.5px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:13px;font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--l1)}
+.dot.live{animation:pulse 1.6s ease-out infinite}
+.dot.warn{background:var(--l2)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,191,113,.7)}100%{box-shadow:0 0 0 10px rgba(47,191,113,0)}}
+.modes{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.mode{font:inherit;font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.mode[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.ctl{display:none;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.ctl.on{display:flex}
+.banner{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.banner div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;color:var(--muted)}
+.banner b{color:var(--ink);display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.banner .med{border-color:#5a4a1a}.banner .med b{color:var(--l2)}
+.kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi b{display:block;font-size:24px;line-height:1.1}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi.k1 b{color:var(--l1)}.kpi.k2 b{color:var(--l2)}.kpi.k3 b{color:var(--l3)}.kpi.k4 b{color:var(--l4)}
+.kpi.nb b{font-size:16px}
+.grid{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;align-items:start}
+@media (max-width:1100px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(4,1fr)}.banner{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}.banner{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+h2{font-size:15.5px;margin:0 0 6px}
+.note{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+#map{height:300px;border-radius:10px;border:1px solid var(--line);background:#16222b}
+.leaflet-container{font:inherit}
+.leaflet-tooltip.tip{background:#0b1217;color:#e6eef3;border:1px solid #3b4a52;font-size:12px;font-weight:600;padding:2px 6px}
+.leaflet-tooltip.tip::before{display:none}
+.site{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:12px;background:var(--panel2);margin-top:10px;overflow:hidden}
+.site .hd{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.site .hd h3{margin:0;font-size:16px}
+.site .wx{font-size:13px;color:var(--muted)}
+.site .wx b{color:var(--ink)}
+.src{font-size:11.5px;padding:2px 7px;border-radius:6px;background:#173041;color:#bfe3ff;margin-left:6px}
+.src.stale{background:#4a3a10;color:#ffe08a}
+.crew{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.crew:last-child{border-bottom:none}
+@media (max-width:640px){.crew{grid-template-columns:1fr}}
+.lv{border-radius:10px;padding:8px 10px;color:#111;font-weight:700}
+.lv small{display:block;font-weight:500;font-size:12px}
+.L1{background:var(--l1)}.L2{background:var(--l2)}.L3{background:var(--l3)}.L4{background:var(--l4);color:#fff}
+.changed{animation:flash 1.6s ease-out 2}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,255,255,.9)}100%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
+@media (prefers-reduced-motion:reduce){.changed,.dot.live{animation:none}.changed{outline:3px solid #fff}}
+.strip{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;margin:4px 0 2px}
+.strip i{height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:700;color:#111}
+.strip i.now{outline:2px solid #fff;outline-offset:1px}
+.strip i.c4{color:#fff}
+.hrs{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;font-size:10.5px;color:var(--muted)}
+.iv{font-size:13px;margin-top:5px;padding:6px 8px;border-radius:8px;background:#1d2a33}
+.iv.now{background:#3a1717}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.chip{font-size:11.5px;padding:2px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:0}
+details{margin-top:4px;font-size:12.5px;color:var(--muted)}
+details summary{cursor:pointer;color:var(--teal)}
+details ul{margin:4px 0 0;padding-left:18px}
+.dec{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:10px;padding:9px 10px;margin-top:8px;background:var(--panel2)}
+.dec b{font-size:14px}
+.acts{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.act{font:inherit;font-size:12.5px;font-weight:600;padding:6px 9px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+.done{color:var(--l1);font-weight:600;font-size:13px;margin-top:5px}
+.esc{color:var(--l4);font-weight:700;font-size:13px;margin-top:5px}
+.feed{list-style:none;margin:0;padding:0;max-height:330px;overflow:auto}
+.feed li{border-left:4px solid var(--c);padding:5px 8px;margin:5px 0;background:var(--panel2);border-radius:6px;font-size:13px;animation:in .5s ease-out}
+.feed li small{color:var(--muted);display:block;font-size:11.5px}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.sens{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:#101c24}
+.sen{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12.5px;color:var(--muted);flex:1 1 300px}
+.sen b{color:var(--ink)}
+.sen .wb{font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.sen svg{flex:0 0 auto}
+.tick{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--l1);margin-right:4px}
+.tick.on{animation:blink .8s ease-out}
+@keyframes blink{0%{transform:scale(1.8);background:#fff}100%{transform:scale(1)}}
+table.layers{width:100%;border-collapse:collapse;font-size:12.5px}
+table.layers td,table.layers th{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.layers th{color:var(--muted);font-weight:600}
+.st-live{color:var(--l1);font-weight:600}.st-sim{color:var(--l2);font-weight:600}.st-road{color:var(--muted);font-style:italic}
+.log{font-size:12.5px;max-height:220px;overflow:auto;margin:0;padding-left:18px}
+.err{color:var(--l4);font-size:13px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;background:var(--c);vertical-align:-1px}
+input[type=range]{width:140px}
+</style>
+</head>
+<body>
+<nav class="top" aria-label="HeatWatch views">
+  <a href="/command" aria-current="page">🛰️ Live command centre</a><a href="/">⌚ Worker</a><a href="/supervisor">🧑‍✈️ Supervisor</a><a href="/control">🖥️ Control centre</a><a href="/demo">🎬 Guided demo</a><a href="/judges">🧭 Judge guide</a>
+</nav>
+<main>
+<header class="bar">
+  <div>
+    <h1>Live Command Centre · 3 sites, one picture</h1>
+    <p class="sub">Live weather + on-site sensors (every 15 s) + watches + worker check-ins → fixed rules → 12-hour forecast → action <b>before</b> the limit is crossed. Rules decide · AI only explains · <b>people decide</b>.</p>
+  </div>
+  <div class="modes" role="group" aria-label="Data mode">
+    <span class="pill" id="status"><span class="dot live" id="sdot"></span><span id="stxt">Connecting…</span></span>
+    <button class="mode" data-m="live" aria-pressed="true">Live weather</button>
+    <button class="mode" data-m="heatwave" aria-pressed="false">What-if heatwave</button>
+    <button class="mode" data-m="replay" aria-pressed="false">Replay a summer day</button>
+    <label class="ctl" id="ctl-heat">+<input type="range" id="heat" min="1" max="10" step="1" value="6" aria-label="Extra degrees Celsius"> <b id="heatv">6</b> °C on live weather</label>
+    <span class="ctl" id="ctl-replay"><button class="mode" id="play">⏸ Pause</button> replay clock <b id="rclk">05:00</b> <input type="range" id="rh" min="0" max="23.5" step="0.5" value="5" aria-label="Replay hour"></span>
+  </div>
+</header>
+
+<div class="banner">
+  <div class="med"><b>Not a diagnosis</b><span id="b-med">Occupational safety alert, not a medical diagnosis.</span></div>
+  <div><b>Privacy</b><span id="b-priv"></span></div>
+  <div><b>Weather</b><span id="b-wx"></span></div>
+  <div><b>Workers</b><span id="b-wk"></span></div>
+</div>
+
+<div class="kpis" aria-live="polite">
+  <div class="kpi"><b id="k-w">–</b><span>workers covered</span></div>
+  <div class="kpi k1"><b id="k1">–</b><span>crews Normal</span></div>
+  <div class="kpi k2"><b id="k2">–</b><span>crews Caution</span></div>
+  <div class="kpi k3"><b id="k3">–</b><span>crews High</span></div>
+  <div class="kpi k4"><b id="k4">–</b><span>crews Stop work</span></div>
+  <div class="kpi nb"><b id="k-nb">–</b><span>next predicted limit crossing</span></div>
+  <div class="kpi"><b id="k-dec">–</b><span>decisions waiting</span></div>
+</div>
+
+<div class="grid">
+<div>
+  <section class="panel">
+    <h2>Sites</h2>
+    <div id="map" role="img" aria-label="Map of the three sites, coloured by their highest crew level"></div>
+    <div class="legend"><span style="--c:var(--l1)">1 Normal</span><span style="--c:var(--l2)">2 Caution</span><span style="--c:var(--l3)">3 High</span><span style="--c:var(--l4)">4 Stop work</span><span>Click a site to zoom; crew positions are synthetic.</span></div>
+    <div class="err" id="err" role="status"></div>
+    <div id="sites"></div>
+  </section>
+</div>
+<div>
+  <section class="panel">
+    <h2>Decisions needed · act before the limit</h2>
+    <p class="note">Each card comes from the forecast or from a crew already at High or Stop. A person must choose a real action: there is no plain “OK”. Crews already at High or Stop escalate to the site manager after 10 minutes without a decision.</p>
+    <div id="decs"><p class="note">Nothing waiting.</p></div>
+  </section>
+  <section class="panel">
+    <h2>Live feed</h2>
+    <p class="note">Level changes, watch alerts (level and reason code only) and worker check-ins, newest first.</p>
+    <ul class="feed" id="feed"></ul>
+  </section>
+  <section class="panel">
+    <h2>Data layers and update rates</h2>
+    <p class="note">The screen refreshes every 15 s because the on-site stations report every 15 s. Satellites cannot: geostationary imagers scan the full disk every 10 min (30 s only in rapid-scan areas), so they set the sunshine and cloud outlook, not the live level.</p>
+    <table class="layers"><thead><tr><th>Layer</th><th>Update</th><th>Sends</th><th>Status</th></tr></thead><tbody id="layers"></tbody></table>
+  </section>
+  <section class="panel">
+    <h2>Human decision log</h2>
+    <ol class="log" id="log"><li class="note">No decisions yet.</li></ol>
+  </section>
+</div>
+</div>
+</main>
+<script src="/vendor/leaflet/leaflet.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const HEX={1:"#2fbf71",2:"#f2b705",3:"#ff7a1a",4:"#ff3b3b"}, LBL={1:"Normal",2:"Caution",3:"High",4:"Stop work"};
+const Q=new URLSearchParams(location.search);
+let mode=["live","heatwave","replay"].includes(Q.get("mode"))?Q.get("mode"):"live";
+let replayH=Q.has("h")?Math.max(0,Math.min(23.5,parseFloat(Q.get("h"))||5)):5, playing=Q.get("play")!=="0";
+if(Q.has("heat")) $("heat").value=Math.max(1,Math.min(10,parseInt(Q.get("heat"))||6));
+let last=null, prevLv={}, seenEv=new Set(), decided={}, firstSeen={}, lastOk=0, timer=null, focusSite=null;
+
+// ---- map
+let map=null, siteM={}, crewM={};
+if(window.L){
+  map=L.map("map",{worldCopyJump:true}).setView([24.5,87],3);
+  map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{maxZoom:18,subdomains:"abcd",
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'}).addTo(map);
+}else $("map").innerHTML='<p class="note" style="padding:12px">Map could not load (offline). Site cards below still work.</p>';
+function paintMap(d){ if(!map) return;
+  d.sites.forEach(s=>{
+    if(!siteM[s.id]) siteM[s.id]=L.circleMarker([s.lat,s.lon],{radius:11,weight:3,color:"#fff",fillOpacity:.95}).addTo(map)
+      .bindTooltip("",{permanent:true,direction:"right",offset:[12,0],className:"tip"})
+      .on("click",()=>{focusSite=s.id; map.setView([s.lat,s.lon],14); document.getElementById("s-"+s.id)?.scrollIntoView({behavior:"smooth",block:"nearest"});});
+    siteM[s.id].setStyle({fillColor:HEX[s.level]}).setTooltipContent(`${s.name} · ${LBL[s.level]}`);
+    s.crews.forEach(c=>{const k=s.id+c.crew;
+      if(!crewM[k]) crewM[k]=L.circleMarker(c.pos,{radius:7,weight:2,color:"#fff",fillOpacity:.95}).addTo(map).bindTooltip("",{direction:"top"});
+      crewM[k].setStyle({fillColor:HEX[c.level]}).setTooltipContent(`${c.crew} · ${LBL[c.level]}`);});
+  });
+}
+
+// ---- rendering
+const hh=t=>(t||"").slice(11,16);
+function strip(fc){
+  const cells=fc.map((f,i)=>`<i class="L${f.level} c${f.level}${i?"":" now"}" title="${esc(hh(f.time))} · ${LBL[f.level]}${f.wbgt!=null?` · WBGT ${f.wbgt} °C`:""}${f.zone?` · ADOSH ${esc(f.zone)}`:""}">${f.level}</i>`).join("");
+  const hrs=fc.map((f,i)=>`<span>${i===0?"now":(i%3===0?hh(f.time):"")}</span>`).join("");
+  return `<div class="strip" aria-label="Forecast levels for the next 12 hours">${cells}</div><div class="hrs">${hrs}</div>`;
+}
+function siteCard(s){
+  const w=s.weather, sun=Math.round(Math.min(1,(w.rad_w_m2||0)/900)*100);
+  const crews=s.crews.map(c=>{const k=s.id+"|"+c.crew, ch=prevLv[k]!=null&&prevLv[k]!==c.level;
+    const iv=c.intervention?`<div class="iv ${c.intervention.when==="now"?"now":""}">${c.intervention.when==="now"?"⚠ ":"⏱ "}${esc(c.intervention.text)}</div>`:`<div class="iv">✓ No High or Stop in the next 12 hours.</div>`;
+    const chips=c.watches.map(x=>`<span class="chip" style="--c:${HEX[x.level]}" title="${x.reasons.length?esc(x.reasons[0].replaceAll("_"," ")):"normal"}">${esc(x.watch)} · ${x.level}</span>`).join("")
+      +`<span class="chip" style="--c:${c.checkin.kind==="ok"?HEX[1]:c.checkin.kind==="break"?HEX[2]:HEX[4]}">${esc(c.checkin.text)}</span>`;
+    return `<div class="crew">
+      <div class="lv L${c.level}${ch?" changed":""}">${c.level} · ${LBL[c.level]}<small>${esc(c.crew)} · ${c.size} people</small><small>${esc(c.location)}</small></div>
+      <div><div style="font-size:13px"><b>${esc(c.schedule)}</b>${c.zone?` · ADOSH ${esc(c.zone)}`:""}${c.wbgt!=null?` · effective WBGT ${c.wbgt} °C`:""}</div>
+        ${strip(c.forecast)}${iv}<div class="chips">${chips}</div>
+        <details><summary>Why this level?</summary><ul>${c.reasons.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></details></div></div>`;}).join("");
+  return `<article class="site" id="s-${s.id}" style="--c:${HEX[s.level]}">
+    <div class="hd"><div><h3>${esc(s.name)} <span class="note" style="font-weight:400">· ${esc(s.region)} · ${esc(s.kind)}</span></h3>
+      <div class="wx">Local time <b>${hh(s.local_time)||"–"}</b> ${esc(s.tz)} · air <b>${w.temp_c??"–"} °C</b> · humidity <b>${w.rh_pct??"–"}%</b> · wind <b>${w.wind_ms??"–"} m/s</b> · sun <b>${sun}%</b>
+      <span class="src ${s.stale?"stale":""}">${esc(s.source)}${s.stale?" · +2 °C safety margin":""}</span></div>
+      ${s.note?`<div class="note" style="color:var(--l2)">${esc(s.note)}</div>`:""}</div></div>${sensors(s)}${crews}</article>`;
+}
+
+// on-site stations: keep the last 40 readings (10 min) per station for a trend line
+const HIST={};
+function spark(id){ const h=HIST[id]||[]; if(h.length<2) return '<svg width="120" height="34" aria-hidden="true"></svg>';
+  const lo=Math.min(...h)-.3, hi=Math.max(...h)+.3, X=i=>4+i*(112/(Math.max(h.length,40)-1)), Y=v=>30-(v-lo)/(hi-lo)*26;
+  const pts=h.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+  return `<svg width="120" height="34" role="img" aria-label="WBGT trend, last ${h.length} readings"><polyline points="${pts}" fill="none" stroke="#4fb3bd" stroke-width="2"/><circle cx="${X(h.length-1)}" cy="${Y(h[h.length-1])}" r="3" fill="#fff"/></svg>`;}
+function sensors(s){ if(!s.sensors||!s.sensors.length) return "";
+  return `<div class="sens">${s.sensors.map(r=>{const h=HIST[r.station]||[], d=h.length>1?r.wbgt_c-h[h.length-2]:0;
+    return `<div class="sen"><div><span class="tick on"></span><b>${esc(r.station)}</b> · ${esc(r.name)}<br>
+      <span class="wb">${r.wbgt_c}</span> °C WBGT <span title="change since last reading">${d>0?"▲":d<0?"▼":"■"} ${Math.abs(d).toFixed(1)}</span><br>
+      air ${r.temp_c} °C · RH ${r.rh_pct}% · globe ${r.globe_c??"–"} °C · wet bulb ${r.wet_bulb_c??"–"} °C<br>
+      <span>${esc(r.source)} · reading ${r.age_s} s old</span></div>${spark(r.station)}</div>`;}).join("")}</div>`;}
+
+// decisions: a card per crew whose intervention is "now" or within 90 minutes
+const OPTS=["Start the work-rest cycle now","Rotate the crew","Move the task to the cooler window","Add cooling: shade, fans, cooling vests","Stop work and cool down"];
+function decKey(s,c){return s.id+"|"+c.crew+"|"+c.level+"|"+(c.intervention.breach_at||"now");}
+function renderDecs(d){
+  const now=Date.now(), cards=[];
+  d.sites.forEach(s=>s.crews.forEach(c=>{ const iv=c.intervention; if(!iv) return;
+    if(iv.when!=="now" && iv.minutes_ahead>90) return;
+    const k=decKey(s,c); firstSeen[k]=firstSeen[k]||now; cards.push({s,c,iv,k});}));
+  const waiting=cards.filter(x=>!decided[x.k]).length; $("k-dec").textContent=waiting;
+  $("decs").innerHTML=cards.length?cards.sort((a,b)=>b.c.level-a.c.level).map(({s,c,iv,k})=>{
+    // Stop accepts only stopping actions (same rule as the supervisor view)
+    const stopNow=iv.when==="now"&&c.level===4;
+    const opts=stopNow?["Stop work and cool down","Call the medic now","Stop now, move the task to the cooler window"]
+      :OPTS.concat(c.checkin.kind==="unwell"?["Call the medic now"]:[]);
+    const mins=Math.floor((now-firstSeen[k])/60000);
+    let body;
+    if(decided[k]) body=`<div class="done">✓ ${esc(decided[k])}</div>`;
+    else body=(iv.when==="now"?(mins>=10?`<div class="esc">⚠ No decision in 10 min: escalated to the site manager</div>`:`<div class="note">${10-mins} min to decide before escalation</div>`)
+              :`<div class="note">Proactive: ${iv.minutes_ahead} min until the suggested start (${esc(iv.when)})</div>`)
+      +`<div class="acts">${opts.map(o=>`<button class="act" data-k="${esc(k)}" data-o="${esc(o)}" data-c="${esc(c.crew)}" data-s="${esc(s.name)}">${esc(o)}</button>`).join("")}</div>`;
+    return `<div class="dec" style="--c:${HEX[iv.level]}"><b>${esc(s.name)} · ${esc(c.crew)} · ${iv.when==="now"?LBL[c.level]+" now":LBL[iv.level]+" at "+esc(iv.breach_at)}</b>
+      <div class="note" style="margin:2px 0 0">${esc(iv.text)}</div>${body}</div>`;}).join("")
+    :'<p class="note">Nothing waiting: no crew at High or Stop now or in the next 90 minutes.</p>';
+}
+const LOG=[];
+$("decs").addEventListener("click",e=>{const b=e.target.closest(".act"); if(!b) return;
+  const t=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  decided[b.dataset.k]=`${b.dataset.o} · chosen by supervisor at ${t}`;
+  LOG.unshift(`${t} · ${b.dataset.s} ${b.dataset.c}: “${b.dataset.o}”`);
+  $("log").innerHTML=LOG.map(x=>`<li>${esc(x)}</li>`).join(""); if(last) renderDecs(last);});
+
+function feed(items){ const ul=$("feed");
+  items.forEach(it=>{const li=document.createElement("li"); li.style.setProperty("--c",HEX[it.level]||"#888");
+    li.innerHTML=`${esc(it.text)}<small>${esc(it.site)} · ${esc(it.crew)} · ${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})}${it.sim?" · simulated":""}</small>`;
+    ul.prepend(li);});
+  while(ul.children.length>60) ul.lastChild.remove();
+}
+
+function render(d){
+  $("b-priv").textContent=d.labels.privacy; $("b-wx").textContent=d.labels.weather; $("b-wk").textContent=d.labels.workers; $("b-med").textContent=d.labels.medical;
+  $("k-w").textContent=d.workers; [1,2,3,4].forEach(i=>$("k"+i).textContent=d.counts[i]);
+  $("k-nb").textContent=d.next_breach?`${d.next_breach.crew} · ${d.next_breach.site} · ${d.next_breach.at} (act ${d.next_breach.act_at})`:"none in 12 h";
+  d.sites.forEach(s=>(s.sensors||[]).forEach(r=>{const h=HIST[r.station]=HIST[r.station]||[];
+    if(h._tick!==r.tick){h.push(r.wbgt_c); h._tick=r.tick; while(h.length>40) h.shift();}}));
+  $("sites").innerHTML=d.sites.map(siteCard).join("");
+  $("layers").innerHTML=(d.layers||[]).map(l=>`<tr><td><b>${esc(l.layer)}</b></td><td>${esc(l.rate)}</td><td>${esc(l.sends)}</td><td class="${/^live/.test(l.status)?"st-live":/roadmap/.test(l.status)?"st-road":"st-sim"}">${esc(l.status)}</td></tr>`).join("");
+  // feed: level changes first, then new watch / check-in events
+  const items=[];
+  d.sites.forEach(s=>s.crews.forEach(c=>{const k=s.id+"|"+c.crew;
+    if(prevLv[k]!=null&&prevLv[k]!==c.level) items.push({site:s.name,crew:c.crew,level:c.level,
+      text:`${LBL[prevLv[k]]} → ${LBL[c.level]}${c.level>prevLv[k]?" ▲":" ▼"}`});
+    prevLv[k]=c.level;}));
+  d.events.forEach(ev=>{const k=[ev.site,ev.crew,ev.text,mode==="replay"?replayH:Math.floor(Date.now()/60000)].join("|");
+    if(!seenEv.has(k)){seenEv.add(k); items.push({...ev,sim:true});}});
+  feed(items.reverse()); paintMap(d); renderDecs(d);
+}
+
+async function poll(){
+  const p=new URLSearchParams({mode}); if(mode==="heatwave") p.set("heat",$("heat").value); if(mode==="replay") p.set("replay_hour",replayH);
+  try{
+    const r=await fetch("/api/live?"+p); if(!r.ok) throw new Error("server "+r.status);
+    const d=await r.json(); last=d; lastOk=Date.now(); $("err").textContent=""; render(d);
+  }catch(e){ $("err").textContent="Update failed ("+e.message+"). Showing the last picture; levels are never lowered while offline."; }
+  schedule();
+}
+function schedule(){ clearTimeout(timer);
+  const every=(last?last.refresh_s:15)*1000;
+  timer=setTimeout(()=>{ if(mode==="replay"&&playing){replayH=(replayH+1/6)%24; syncReplay();} poll(); }, every);
+}
+function syncReplay(){ const h=Math.floor(replayH), m=Math.round((replayH-h)*60);
+  $("rclk").textContent=String(h).padStart(2,"0")+":"+String(m%60).padStart(2,"0"); $("rh").value=Math.round(replayH*2)/2; }
+setInterval(()=>{ if(!lastOk) return; const s=Math.round((Date.now()-lastOk)/1000), old=s>60;
+  $("sdot").className="dot "+(old?"warn":"live");
+  $("stxt").textContent=(mode==="live"?"LIVE":mode==="heatwave"?"WHAT-IF":"REPLAY")+` · updated ${s}s ago`+(old?" · reconnecting":""); },1000);
+
+function setMode(m){ mode=m; document.querySelectorAll(".mode[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===m)));
+  $("ctl-heat").classList.toggle("on",m==="heatwave"); $("ctl-replay").classList.toggle("on",m==="replay");
+  prevLv={}; seenEv=new Set(); $("feed").innerHTML=""; for(const k in HIST) delete HIST[k]; poll(); }
+document.querySelectorAll(".mode[data-m]").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$("heat").oninput=()=>{$("heatv").textContent=$("heat").value;}; $("heat").onchange=poll;
+$("rh").oninput=()=>{replayH=parseFloat($("rh").value); syncReplay();}; $("rh").onchange=poll;
+$("play").onclick=()=>{playing=!playing; $("play").textContent=playing?"⏸ Pause":"▶ Play";};
+$("heatv").textContent=$("heat").value; $("play").textContent=playing?"⏸ Pause":"▶ Play"; syncReplay(); setMode(mode);
+</script>
+</body>
+</html>

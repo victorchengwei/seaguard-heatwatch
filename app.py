@@ -8,13 +8,15 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
+import hmac
+import os
 from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel
 
 from heatwatch.rules import Conditions, Worker, assess, CLOTHING, WORKLOADS
 
-app = FastAPI(title="SeaGuard HeatWatch", version="0.16.0")
+app = FastAPI(title="SeaGuard HeatWatch", version="0.17.0")
 STATIC = Path(__file__).parent / "static"
 
 
@@ -320,3 +322,39 @@ def languages():
                                  **{k: v["name"] for k, v in wellbeing.WORKER_LANGS.items()}},
             "note": "All non-English texts are AI-DRAFT translations; "
                     "native-speaker review required before field use."}
+
+
+# ---------------------------------------------------------------- live command centre (v0.17)
+from heatwatch import live
+
+
+@app.get("/api/live")
+def live_snapshot(mode: str = "live", heat: float = Query(0.0, ge=0, le=10),
+                  replay_hour: float = Query(13.0, ge=0, lt=24)):
+    """Live weather per site + simulated level-only watches and check-ins, with a 12-hour forecast
+    and proactive interventions. Occupational safety alerts, not a medical diagnosis."""
+    return live.snapshot(mode, heat, replay_hour)
+
+
+@app.post("/api/sensor/{station_id}")
+def sensor_post(station_id: str, body: dict, x_sensor_token: Optional[str] = Header(None)):
+    """Reading from a REAL on-site heat-stress station (e.g. every 15 s from a gateway).
+
+    Body: {"temp_c": 38.2, "rh_pct": 45, "globe_c": 50.1, "wbgt_c": 31.0}  (globe and WBGT optional).
+    Disabled unless the SENSOR_TOKEN environment variable is set; the header X-Sensor-Token must match.
+    A reading can only make a level stricter: sensor and weather model are both assessed, the stricter wins.
+    """
+    expected = os.environ.get("SENSOR_TOKEN")
+    if not expected:
+        raise HTTPException(503, "Sensor input is disabled on the public demo (no SENSOR_TOKEN set).")
+    if not x_sensor_token or not hmac.compare_digest(x_sensor_token, expected):
+        raise HTTPException(401, "Missing or wrong X-Sensor-Token.")
+    try:
+        return live.ingest_reading(station_id.upper(), body)
+    except (ValueError, TypeError) as e:
+        raise HTTPException(422, str(e))
+
+
+@app.get("/command", response_class=HTMLResponse)
+def command_page():
+    return (STATIC / "command.html").read_text(encoding="utf-8")

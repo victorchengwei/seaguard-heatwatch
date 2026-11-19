@@ -5,7 +5,7 @@ Future Health Digital Innovation Challenge · [Population Health] Climate-Resili
 
 > **Rules decide. AI only explains. People decide.**
 
-**Live demo:** [Judge guide](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/judges) · [Guided demo](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/demo) · [Worker app](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/)
+**Live demo:** [Live command centre](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/command?mode=replay&h=5) · [Judge guide](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/judges) · [Guided demo](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/demo) · [Worker app](https://seaguard-heatwatch-1061831968639.asia-east1.run.app/)
 
 **Backup mirror (Azure):** [Judge guide](https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/judges) · [Guided demo](https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/demo) · [Worker app](https://seaguard-heatwatch-tw-hvgrhqhqfnachjcw.eastasia-01.azurewebsites.net/) (free tier: the first load can take about 30 s)
 
@@ -17,13 +17,32 @@ Future Health Digital Innovation Challenge · [Population Health] Climate-Resili
 
 | Page | What it shows |
 | --- | --- |
-| `/judges` | 3-minute judge guide: 6 one-click steps |
+| `/command` | **Live command centre (v0.17):** 3 sites, live weather, 12-hour forecast per crew, act before the limit |
+| `/judges` | 3-minute judge guide: 7 one-click steps |
 | `/` | Worker app: level, action, work-rest, water, ADOSH zone, simulated watch, 12 languages |
 | `/supervisor` | Crew colours, 24-hour planner, decisions with no plain "OK" |
 | `/control` | Control Centre: site map, live watches, man-down, human decision log |
 | `/demo` | Guided demo: 7 simulated workers, supervisor board, worker band, health office, benchmark |
 
-## What works now (v0.16)
+## What works now (v0.17)
+
+### Live command centre (`/command`, new in v0.17)
+
+Built from the early-screening feedback: a supervisor screen that updates by itself as weather, watches and check-ins change, across several sites, and plans rest cycles before a limit is crossed.
+
+- `heatwatch/live.py` + `/api/live`: three real sites on one screen: Khalifa Port (Abu Dhabi), an offshore platform off Das Island (Arabian Gulf) and Taichung Port (Taiwan); seven crews.
+- **Live weather** per site from the Open-Meteo forecast API (no key; CC BY 4.0): current conditions plus the next 12 hours, cached 10 minutes. Sun strength comes from measured shortwave radiation, not a clock guess.
+- **Fail-safe feed:** if the weather feed fails, the last reading is used and marked stale (+2 °C margin); with no reading, a labelled fallback day is used, also stale. A feed failure can only raise a level, never lower it.
+- **On-site heat-stress stations, every 15 s (simulated; real ones can post):** each site has a deck/quay WBGT station and the offshore platform has an engine-room station. A reading gives air, humidity, black globe, natural wet bulb and WBGT (ISO 7243 / ACGIH formulas), drawn with a 10-minute trend line. Each crew is assessed twice, from its station and from the weather model, and **the stricter wins**, so a faulty or cool sensor can never lower a level. A real station posts to `POST /api/sensor/{station}` (disabled unless `SENSOR_TOKEN` is set; header `X-Sensor-Token`). If a real station is silent for 2 minutes it is ignored and the site goes stale (+2 °C). Shaded work with no station uses the model and says so.
+- **Why 15 s, and why not satellites:** geostationary weather satellites (Himawari-9, Meteosat, GOES) scan the full disk every 10 minutes and small rapid-scan areas every 30 s at best, with about 20–30 s more delay on the ground. They suit the sunshine and cloud outlook (roadmap), not the live level. The 15-second live level comes from stations and watches on site.
+- **Wearables and check-ins (simulated):** each watch sends only a level and a reason code; heart rate, body-heat estimate and age stay on the watch. Check-ins: "OK", "I need a break" (break approved), "I feel unwell" (always Stop). The crew level is the highest of weather, watches and check-ins, and the screen says why.
+- **12-hour forecast per crew:** the same fixed rules (ACGIH WBGT + ADOSH TWL) run on every forecast hour and are drawn as a colour strip with numbers 1–4 (readable without colour).
+- **Proactive interventions:** the first forecast hour at High or Stop becomes a plan offered 30 minutes earlier ("start Work 30 / rest 30 from 09:30; move heavy tasks to 06:00–08:00"). A person must choose a real action; there is no plain "OK". Crews already at High or Stop escalate to the site manager after 10 minutes without a decision.
+- **Modes:** Live weather; What-if heatwave (live + 1–10 °C); Replay of a real Abu Dhabi day (18 July 2025: workable at dawn, Stop by noon), so risk can be watched building hour by hour at any time of year.
+- Every screen states: occupational safety alert, not a medical diagnosis; workers and positions simulated; weather live.
+- `tests/test_live.py`: 19 tests (feed parsing, cache, stale and fallback, proactive timing, what-if, replay, WBGT formulas, 15-s sensor ticks, stricter-wins fusion, silent station, sensor input validation and token, privacy of watch messages, labels, API).
+
+
 
 v0.16 joins the two development lines: the v0.15 worker, supervisor and Control Centre app, and the guided demo with the 52-case benchmark.
 
@@ -87,7 +106,7 @@ Reproduce:
 ```bash
 python -m heatwatch.simulate   # SIMULATED sensor streams
 python -m heatwatch.bench      # results/benchmark_summary.json
-pytest                         # 142 tests
+pytest                         # 161 tests
 ```
 
 ## Run locally
